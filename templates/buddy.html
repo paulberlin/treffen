@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Buddy{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here are the details of your buddy <em>{{ buddy.name }}</em>:
+
+{% if buddy.how_often > 0 %}
+<ul>
+{% for meetup in buddy.meetups %}
+  <li><a href="{% url 'meetup_details' meetup.id %}">{{ meetup.name }}</a>, on {{ meetup.date|date:"Y-m-d" }} you met with
+{% for buddy in meetup.buddies.all %}
+   <a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %} at <a href="{% url 'location_details' meetup.location.id %}">{{ meetup.location.name }}</a>
+  </li>
+{% empty %}
+  <li>No meetups yet :-/</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if buddy.how_often > 1 %}
+<p>
+On average, you met with this buddy every
+{{ buddy.frequency | floatformat:-1 }}
+days.
+</p>
+{% endif %}
+
+
+<details {{ open_details }}>
+<summary>Update buddy</summary>
+<p>
+<form action="" method="post" id="form">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete buddy</a>
+<dialog id="dialog-demo">
+<p>Please confirm deleting buddy <em>{{ buddy.name }}</em><br>
+(Note that the buddy will be removed from meetups, but the meetup itself remains.)</p>
+<button onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()">Confirm</button>
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+</dialog>
+
+</form>
+</p>
+</details>
+<p><a href="{% url 'buddies' %}">Back to buddies list</a></p>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Meetup{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here are the details of your meetup <em>{{ meetup.name }}</em>:
+
+<p>
+On {{ meetup.date|date:"Y-m-d"}} you and 
+{% for buddy in meetup.buddies.all %}
+<a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}
+met at <a href="{% url 'location_details' meetup.location.id %}">{{ meetup.location }}</a>.
+</p>
+
+<details {{ open_details }}>
+<summary>Update meetup</summary>
+<p>
+<form action="" method="post" id="form">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete meetup</a>
+<dialog id="dialog-demo">
+<p>Please confirm deleting meetup <em>{{ meetup.name }}</em><br>
+(Note that the meetup will be removed, but the buddies and location remain.)</p>
+<button onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()">Confirm</button>
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+</dialog>
+
+</form>
+</p>
+</details>
+<p><a href="{% url 'meetups' %}">Back to meetups list</a></p>
+
+{% endblock %}

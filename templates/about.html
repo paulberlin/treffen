@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}About{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block login %}
+Just a hobby project to track meeting my buddies.<br>Ideas for improvement:
+<ul>
+<li>Buddy<ul>
+<li>add contact information</li>
+</ul></li>
+<li>Location<ul>
+<li>Add address and google maps</li>
+</ul></li>
+<li>Meetup<ul>
+<li>use better calendar widget (<a href="https://pythonassets.com/posts/date-field-with-calendar-widget-in-django-forms/" target="_blank">check this</a>)</li>
+</ul></li>
+<li>User<ul>
+<li>registration</li>
+<li>pw reset</li>
+</ul></li>
+<li>...</li>
+</ul>
+
+<p>
+<a href="https://www.djangoproject.com/" target="_blank">Built with Django<br>
+<img src="/static/django2.png" width="200"/></a>
+</p>
+<p>
+<a href="https://uberspace.de/" target="_blank">Hosted on uberspace<br>
+<img src="/static/uberspace.png" width="200"/></a>
+</p>
+{% endblock %}
+
+{% block content %}
+Just a hobby project to track meeting my buddies.<br>Ideas for improvement:
+<ul>
+<li>Buddy<ul>
+<li>add contact information</li>
+<li>...</li>
+</ul></li>
+<li>Location<ul>
+<li>Add address and google maps for each location</li>
+<li>Add google maps for all locations on start?</li>
+<li>add a timeline component? (<a href="https://webdesign.tutsplus.com/building-a-vertical-timeline-with-css-and-a-touch-of-javascript--cms-26528t" target="_blank">example</a>)</li>
+<li>Add a timeline with distance of the dots representing the dates of the meetups</li>
+<li>...</li>
+</ul></li>
+<li>Meetup<ul>
+<li>date format in input field as Y-m-d</li>
+<li>show calendar on start screen with meetups</li>
+<li>optional comment field for meetup</li>
+<li>categorization?</li>
+<li>...</li>
+</ul></li>
+<li>User<ul>
+<li>registration</li>
+<li>pw reset</li>
+<li>...</li>
+</ul></li>
+<li>...</li>
+</ul>
+
+<p>
+<a href="https://www.djangoproject.com/" target="_blank">Built with Django<br>
+<img src="/static/django2.png" width="200"/></a>
+<br>
+using <a href="https://simplecss.org/" target="_blank">Simple CSS</a>
+</p>
+<p>
+<a href="https://uberspace.de/" target="_blank">Hosted on uberspace<br>
+<img src="/static/uberspace.png" width="200"/></a>
+</p>
+{% endblock %}

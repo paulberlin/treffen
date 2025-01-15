@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Buddies{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here's a list of your buddies:
+<ul>
+    {% for buddy in buddies %}
+        <li><a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a> 
+        {% if buddy.how_often > 0 %}
+        (met
+        {% if buddy.how_often == 1 %}one time, on
+        {% else %}{{ buddy.how_often }} times, latest on{% endif %}
+        {{ buddy.latest_meetup.date|date:"Y-m-d" }})
+        {% else %}
+	(not met yet)
+        {% endif %}
+        </li>
+    {% empty %}
+        <li>None yet :-/</li>
+    {% endfor %}
+</ul>
+
+<details {{ open_details }}>
+<summary>Add a buddy</summary>
+<p>
+<form action="" method="post">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+</form>
+</p>
+</details>
+{% endblock %}

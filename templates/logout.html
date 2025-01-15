@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Buddy Tracker &mdash; Logout{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<p>Please confirm logout.</p>
+<form action="{% url 'logout' %}" method="post">
+  {% csrf_token %}
+  <button type="submit">Logout</button>
+</form>
+{% endif %}
+{% endblock %}

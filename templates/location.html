@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Location{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here are the details of your location <em>{{ location.name }}</em>:
+
+{% if location.how_often > 0 %}
+<ul>
+{% for meetup in location.meetups %}
+  <li><a href="{% url 'meetup_details' meetup.id %}">{{ meetup.name }}</a>, on {{ meetup.date|date:"Y-m-d" }} you were here with
+{% for buddy in meetup.buddies.all %}
+   <a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}
+  </li>
+{% empty %}
+  <li>No meetups yet :-/</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if location.how_often > 1 %}
+<p>
+On average, you visit this place every 
+{{ location.frequency | floatformat:-1 }}
+days.
+</p>
+{% endif %}
+
+<details {{ open_details }}>
+<summary>Update location</summary>
+<p>
+<form action="" method="post" id="form">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete location</a>
+<dialog id="dialog-demo">
+<p>Please confirm deleting location <em>{{ location.name }}</em><br>
+(Note that the location can only be removed when it's not used at any meetup.)</p>
+<button {% if location.how_often == 0 %} onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()" {% else %} disabled="true" {% endif %}>Confirm</button>
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+</dialog>
+
+</form>
+</p>
+</details>
+<p><a href="{% url 'locations' %}">Back to locations list</a></p>
+
+{% endblock %}

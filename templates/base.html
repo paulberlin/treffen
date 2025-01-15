@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/simple.min.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <title>{% block title %}Buddy-Tracker{% endblock %}</title>
+    {% block style %}{% endblock %}
+</head>
+<body>
+  <header>
+    <a href="/"><img src="/static/logo.png" alt="Logo"/></a>
+{% if user.is_authenticated %}
+<nav>
+  <a href="{% url 'buddies' %}">My Buddies</a>
+  <a href="{% url 'locations' %}">My Locations</a>
+  <a href="{% url 'meetups' %}">My Meetups</a>
+  <a style="background:var(--accent);color:var(--bg);" href="#" onclick="document.getElementById('logout').submit()">Logout</a>
+</nav>
+<form action="{% url 'logout' %}" method="post" id="logout">
+  {% csrf_token %}
+</form>
+{% else %}
+<nav>
+<a style="background:var(--accent);color:var(--bg);" href="{% url 'login' %}">Login</a>
+</nav>
+{% endif %}
+    {% if subtitle %}<p>{% block subtitle %}{% endblock %}</p>{% endif %}
+</header>
+
+<main>
+{% if user.is_authenticated %}
+
+{% if titleh1 %}<h1>{% block titleh1 %}{% endblock %}</h1>{% endif %} 
+{% if titleh2 %}<h2>{% block titleh2 %}{% endblock %}</h2>{% endif %} 
+
+{% block content %}Welcome to Buddy-Tracker.{% endblock %}
+{% else %}
+{% block login %}
+Please <a href="{% url 'login' %}">login</a> to get started.
+{% endblock %}
+{% endif %}
+
+</main>
+
+<footer>
+<p><a href="{% url 'about' %}">About</a> | &copy; Paul Führing</p>
+</footer>
+</body>
+</html>

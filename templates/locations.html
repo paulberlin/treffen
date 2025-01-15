@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Locations{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here's a list of your locations:
+<ul>
+    {% for location in locations %}
+        <li><a href="{% url 'location_details' location.id %}">{{ location.name }}</a> 
+        {% if location.how_often > 0 %}
+        (visited 
+        {% if location.how_often == 1 %}one time, on 
+        {% else %}{{ location.how_often }} times, latest on{% endif %}
+        {{ location.latest_meetup.date|date:"Y-m-d" }})
+        {% else %}
+	(not visited yet)
+	{% endif %}
+        </li>
+    {% empty %}
+        <li>None yet :-/</li>
+    {% endfor %}
+</ul>
+<details {{ open_details }}>
+<summary>Add a location</summary>
+<p>
+<form action="" method="post">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+</form>
+</p>
+</details>
+{% endblock %}

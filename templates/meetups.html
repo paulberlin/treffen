@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block titleh1 %}Meetups{% endblock %}
+{% block titleh2 %}{% endblock %}
+{% block subtitle %}{% endblock %}
+
+{% block style %}
+<!-- from https://codepen.io/bemdesign/pen/wMmZYo -->
+<style>
+.timeline{
+  position: relative;
+}
+.timeline-line{
+  border-left:3px solid #f4b73f;
+  position: absolute;
+  margin-left:90px;
+  z-index: -1;
+  height:100%;
+  min-height:100%;
+}
+.timeline-events{
+  margin:0 0 0 20px;
+  padding:0;
+  list-style: none;
+  
+}
+.timeline-event{
+  margin:10px 0;
+  margin-left:20px;
+  padding-left:20px;
+  z-index: 0;
+  list-style: none;
+  padding:0;
+  border-radius:50px;
+  transition: all 1s;
+  /*Flex for the win*/
+  display:flex;
+  align-items:center;
+}
+.timeline-date, .timeline-description{
+  display:inline-block;
+}
+.timeline-description{
+  margin-left:2em;
+}
+.timeline-date{
+  background-color:#f4b73f;
+  font-size: 0.9em;
+  color:#000;
+  width:100px;
+  height:100px;
+  border-radius:50px;
+  text-align: center;
+  flex: 0 0 auto;
+}
+.timeline-date time{
+  display:inline-block;
+  padding-top:40px;
+}
+.timeline-event:hover, .timeline-event:active, .timeline-event:focus{
+  background-color:#ebf0fb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here's your timeline:
+
+<div class="timeline">
+<div class="timeline-line" role="presentation">
+</div>
+<ol class="timeline-events">
+    {% for meetup in meetups %}
+        <li class="timeline-event">
+        <div class="timeline-date"><time>{{ meetup.date|date:"Y-m-d" }}</time></div>
+        <a href="{% url 'meetup_details' meetup.id %}">
+        <div class="timeline-description">
+{{ meetup.name }} (@{{ meetup.location }}, 
+        with {{ meetup.buddies_list }})
+        </div>
+        </a>
+        </li>
+    {% empty %}
+        <li>None yet :-/</li>
+    {% endfor %}
+</ol><!-- /.timeline-events -->
+</div><!-- /.timeline -->
+</div><!-- /.container -->
+
+
+<details {{ open_details }}>
+<summary>Add a meetup</summary>
+<p>
+{% if locations_amount == 0 %}
+<a href="{% url 'locations' %}">Please add a location first.</a>
+{% elif buddies_amount == 0 %}
+<a href="{% url 'buddies' %}">Please add a buddy first.</a>
+{% else %}
+<form action="" method="post">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+</form>
+{% endif %}
+</p>
+</details>
+
+{% endblock %}
