@@ -4,7 +4,16 @@
 {% block titleh2 %}{% endblock %}
 {% block subtitle %}{% endblock %}
 
-{% block style %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+
 <!-- from https://codepen.io/bemdesign/pen/wMmZYo -->
 <style>
 .timeline{
@@ -88,6 +97,34 @@ here's your timeline:
 </div><!-- /.timeline -->
 </div><!-- /.container -->
 
+<details open>
+<summary>Map of your meetups</summary>
+<div style="height: 250px;" id="map"></div>
+</details>
+
+
+<script>
+var meetups = {};
+var pins = {};
+{% for meetup in meetups %}
+if (!meetups[{{meetup.location.id}}]) { 
+meetups[{{meetup.location.id}}] = '<a href="{% url 'location_details' meetup.location.id %}">{{meetup.location.clean_name}}</a>';
+}
+meetups[{{meetup.location.id}}] += '<li><a href="{% url 'meetup_details' meetup.id %}">{{meetup.clean_name}}</a></li>';
+{% if meetup.location.lng %}
+pins[{{ meetup.location.id }}] = [{{meetup.location.lat}}, {{meetup.location.lng}}];
+{% endif %}
+{% endfor %}
+var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+for(var loc_id in pins){
+    var marker = L.marker(pins[loc_id]).addTo(map);
+    marker.bindPopup(meetups[loc_id]).openPopup();
+}
+</script>
 
 <details {{ open_details }}>
 <summary>Add a meetup</summary>

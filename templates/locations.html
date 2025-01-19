@@ -4,6 +4,17 @@
 {% block titleh2 %}{% endblock %}
 {% block subtitle %}{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+{% endblock %}
+
+
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your locations:
@@ -23,6 +34,12 @@ here's a list of your locations:
         <li>None yet :-/</li>
     {% endfor %}
 </ul>
+
+<details open>
+<summary>Map of your locations</summary>
+<div style="height: 250px;" id="map"></div>
+</details>
+
 <details {{ open_details }}>
 <summary>Add a location</summary>
 <p>
@@ -33,4 +50,19 @@ here's a list of your locations:
 </form>
 </p>
 </details>
+
+<script>
+var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+{% for location in locations %}
+  {% if location.lng %}
+    var marker{{ location.id }} = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
+    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.clean_name }}</a>').openPopup();
+  {% endif %}
+{% endfor %}
+</script>
+
 {% endblock %}

@@ -37,6 +37,8 @@ class AddLocation(forms.ModelForm):
     }
     widgets = {
       "owner": forms.HiddenInput(),
+      "lng": forms.HiddenInput(),
+      "lat": forms.HiddenInput(),
     }
 
   def __init__(self, *args, **kwargs):

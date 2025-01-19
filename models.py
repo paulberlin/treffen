@@ -10,7 +10,7 @@ import datetime
 class User(AbstractUser):
   pass
 
-class Location(models.Model):
+class Category(models.Model):
   # Fields
   name = models.CharField(max_length=50)
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -28,6 +28,32 @@ class Location(models.Model):
   def __str__(self):
     """String for representing the object (in Admin site etc.)."""
     return self.name
+
+
+class Location(models.Model):
+  # Fields
+  name = models.CharField(max_length=50)
+  owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  lng = models.CharField(max_length=50, blank=True)
+  lat = models.CharField(max_length=50, blank=True)
+
+  # Metadata
+  class Meta:
+    ordering = ['-name']
+    unique_together = ('owner', 'name')
+
+  # Methods
+  def get_absolute_url(self):
+    """Returns the URL to access a particular instance of MyModelName."""
+    return reverse('model-detail-view', args=[str(self.id)])
+
+  def __str__(self):
+    """String for representing the object (in Admin site etc.)."""
+    return self.name
+
+  @property
+  def clean_name(self):
+    return self.name.replace("'", "`") # change ' into `
 
   @property
   def how_often(self):
@@ -132,6 +158,10 @@ class Meetup(models.Model):
   @property
   def buddies_list(self):
     return ", ".join([i.name for i in self.buddies.all()])
+
+  @property
+  def clean_name(self):
+    return self.name.replace("'", "`") # change ' into `
 
 
 

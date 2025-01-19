@@ -13,6 +13,9 @@ from .forms import AddBuddy
 from .forms import AddLocation
 from .forms import AddMeetup
 
+MAP_LAT = "52.520008"
+MAP_LNG = "13.404954"
+
 def index(request):
   context = {}
   return render(request, 'index.html', context)
@@ -81,7 +84,7 @@ def locations(request):
         return redirect('locations')
       open_details = "open"
     locations = Location.objects.filter(owner__exact=request.user).order_by('name')
-    context = { 'locations': locations, "form": form, "open_details": open_details }
+    context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG }
     return render(request, 'locations.html', context)
   else:
     return redirect('login')
@@ -105,7 +108,14 @@ def location_details(request, id):
         form.save()
         return redirect('locations')
       open_details = "open"
-    context = { 'location': location, "form": form, "open_details": open_details }
+    # default 
+    map_lng = MAP_LNG
+    map_lat = MAP_LAT
+    # override with location details if available
+    if location.lng:
+      map_lng = location.lng
+      map_lat = location.lat
+    context = { 'location': location, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng }
     return render(request, 'location.html', context)
   else:
     return redirect('login')
@@ -125,7 +135,7 @@ def meetups(request):
     meetups = Meetup.objects.filter(owner__exact=request.user).order_by('-date')
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
-    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details }
+    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG }
     return render(request, 'meetups.html', context)
   else:
     return redirect('login')
