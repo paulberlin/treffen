@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from .models import Location
 from .models import Buddy
 from .models import Meetup
+from .models import Category
 from .models import User
 
 class BuddyAdmin(admin.ModelAdmin):
@@ -14,7 +15,11 @@ class LocationAdmin(admin.ModelAdmin):
 class MeetupAdmin(admin.ModelAdmin):
   list_display = ('__str__', 'owner')
 
+class CategoryAdmin(admin.ModelAdmin):
+  list_display = ('__str__', 'owner')
+
 admin.site.register(Buddy, BuddyAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Meetup, MeetupAdmin)
+admin.site.register(Category, CategoryAdmin)
 admin.site.register(User, UserAdmin)

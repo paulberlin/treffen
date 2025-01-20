@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% block titleh1 %}Meetup{% endblock %}
-{% block titleh2 %}{% endblock %}
-{% block subtitle %}{% endblock %}
+{% block title %} - Meetup {{ meetup.name }}{% endblock %}
 
 {% block content %}
 Hi {{ user.username }}, 

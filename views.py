@@ -8,10 +8,13 @@ from django.db.models import Count
 from .models import Buddy
 from .models import Location
 from .models import Meetup
+from .models import Category
 
 from .forms import AddBuddy
 from .forms import AddLocation
 from .forms import AddMeetup
+from .forms import AddCategory
+from .forms import SelectCategory
 
 MAP_LAT = "52.520008"
 MAP_LNG = "13.404954"
@@ -24,13 +27,13 @@ def about(request):
   context = {}
   return render(request, 'about.html', context)
 
-def buddies(request):
+def buddies_old(request):
   if request.user.is_authenticated:
     newbuddy = Buddy(owner=request.user)
-    form = AddBuddy(instance=newbuddy)
+    form = AddBuddy(request.user.id, instance=newbuddy)
     open_details = ""
     if request.method == 'POST':
-      form = AddBuddy(request.POST, instance=newbuddy)
+      form = AddBuddy(request.user.id, request.POST, instance=newbuddy)
       if form.is_valid():
         # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
         if form.cleaned_data['owner'] != request.user:
@@ -44,15 +47,43 @@ def buddies(request):
   else:
     return redirect('login')
 
+def buddies(request, cat=""):
+  if request.user.is_authenticated:
+    newbuddy = Buddy(owner=request.user)
+    form = AddBuddy(request.user.id, instance=newbuddy)
+    open_details = ""
+    if request.method == 'POST':
+      form = AddBuddy(request.user.id, request.POST, instance=newbuddy)
+      if form.is_valid():
+        # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
+        if form.cleaned_data['owner'] != request.user:
+          return redirect('index')
+        form.save()
+        return redirect('buddies')
+      open_details = "open"
+    buddies = Buddy.objects.filter(owner__exact=request.user).order_by('name')
+    category = Category.objects.filter(owner__exact=request.user).filter(name=cat).first()
+    category_form = SelectCategory(request.user.id)
+    cat_not_found = 0
+    if category:
+      category_form = SelectCategory(request.user.id, initial={'categories': category.id})
+      buddies = Buddy.objects.filter(owner__exact=request.user).filter(category__exact=category).order_by('name')
+    else:
+      cat_not_found = 1
+    context = { 'buddies': buddies, "form": form, "open_details": open_details, "category_form": category_form, "cat_not_found": cat_not_found,  "test1": category, "test2": cat }
+    return render(request, 'buddies.html', context)
+  else:
+    return redirect('login')
+
 def buddy_details(request, id):
   if request.user.is_authenticated:
     context = {}
     open_details = ""
     buddy = get_object_or_404(Buddy, pk=id, owner=request.user)
     buddyinstance = get_object_or_404(Buddy, pk=id, owner=request.user)
-    form = AddBuddy(instance=buddyinstance)
+    form = AddBuddy(request.user.id, instance=buddyinstance)
     if request.method == 'POST':
-      form = AddBuddy(request.POST, instance=buddyinstance)
+      form = AddBuddy(request.user.id, request.POST, instance=buddyinstance)
       if request.POST.get('delete') == "1":
         buddyinstance.delete()
         return redirect('buddies')
@@ -69,8 +100,10 @@ def buddy_details(request, id):
   else:
     return redirect('login')
 
+
 def locations(request):
   if request.user.is_authenticated:
+    category_form = SelectCategory(request.user.id)
     newlocation = Location(owner=request.user)
     form = AddLocation(instance=newlocation)
     open_details = ""
@@ -84,7 +117,7 @@ def locations(request):
         return redirect('locations')
       open_details = "open"
     locations = Location.objects.filter(owner__exact=request.user).order_by('name')
-    context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG }
+    context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form }
     return render(request, 'locations.html', context)
   else:
     return redirect('login')
@@ -166,5 +199,50 @@ def meetup_details(request, id):
     return redirect('login')
 
 
+def categories(request):
+  if request.user.is_authenticated:
+    newcategory = Category(owner=request.user)
+    form = AddCategory(instance=newcategory)
+    open_details = ""
+    if request.method == 'POST':
+      form = AddCategory(request.POST, instance=newcategory)
+      if form.is_valid():
+        # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
+        if form.cleaned_data['owner'] != request.user:
+          return redirect('index')
+        form.save()
+        return redirect('categories')
+      open_details = "open"
+    categories = Category.objects.filter(owner__exact=request.user).order_by('name')
+    context = { 'categories': categories, "form": form, "open_details": open_details }
+    return render(request, 'categories.html', context)
+  else:
+    return redirect('login')
+
+def category_details(request, id):
+  if request.user.is_authenticated:
+    context = {}
+    open_details = ""
+    category = get_object_or_404(Category, pk=id, owner=request.user)
+    categoryinstance = get_object_or_404(Category, pk=id, owner=request.user)
+    form = AddCategory(instance=categoryinstance)
+    if request.method == 'POST':
+      form = AddCategory(request.POST, instance=categoryinstance)
+      if request.POST.get('delete') == "1":
+        categoryinstance.delete()
+        return redirect('categories')
+      if form.is_valid():
+        # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
+        if form.cleaned_data['owner'] != request.user:
+          return redirect('index')
+        form.save()
+        return redirect('categories')
+      open_details = "open"
+    context = { 'category': category, "form": form, "open_details": open_details}
+    return render(request, 'category.html', context)
+  else:
+    return redirect('login')
+
+    
 
 

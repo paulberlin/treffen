@@ -7,6 +7,21 @@ import datetime
 from .models import Buddy
 from .models import Location
 from .models import Meetup
+from .models import Category
+
+class AddCategory(forms.ModelForm):
+  delete = forms.CharField(label='Delete', max_length=1, required=False)
+  delete.widget = delete.hidden_widget()
+  class Meta:
+    model = Category
+    fields = ('__all__')
+    labels = {
+      "name": "The category's name",
+    }
+    widgets = {
+      "owner": forms.HiddenInput(),
+    }
+
 
 class AddBuddy(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
@@ -14,23 +29,23 @@ class AddBuddy(forms.ModelForm):
   class Meta:
     model = Buddy
     fields = ('__all__')
-    #exclude = ['owner']
     labels = {
       "name": "The mate's name",
+      "category": "Category (optional)",
     }
     widgets = {
       "owner": forms.HiddenInput(),
     }
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, user, *args, **kwargs):
     super(AddBuddy, self).__init__(*args, **kwargs)
+    self.fields['category'].queryset = Category.objects.filter(owner=user)
 
 class AddLocation(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
   class Meta:
     model = Location
-    #exclude = ['owner']
     fields = ('__all__')
     labels = {
       "name": "The place's name",
@@ -49,10 +64,10 @@ class AddMeetup(forms.ModelForm):
   delete.widget = delete.hidden_widget()
   class Meta:
     model = Meetup
-    #exclude = ['owner']
     fields = ('__all__')
     labels = {
       "name": "The happening's name",
+      "category": "Category (optional)",
     }
     widgets = {
       "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
@@ -63,6 +78,7 @@ class AddMeetup(forms.ModelForm):
     super(AddMeetup, self).__init__(*args, **kwargs)
     self.fields['buddies'].queryset = Buddy.objects.filter(owner=user)
     self.fields['location'].queryset = Location.objects.filter(owner=user)
+    self.fields['category'].queryset = Category.objects.filter(owner=user)
   
   def clean(self):
     cleaned_data = super().clean()
@@ -75,6 +91,12 @@ class AddMeetup(forms.ModelForm):
     return date
 
 
+class SelectCategory(forms.Form):
+  categories = forms.ModelChoiceField(queryset=Category.objects.all())
 
+  def __init__(self, user, *args, **kwargs):
+    super(SelectCategory, self).__init__(*args, **kwargs)
+    self.fields['categories'].queryset = Category.objects.filter(owner=user)
+    self.fields['categories'].label = "Select a category to filter"
 
 

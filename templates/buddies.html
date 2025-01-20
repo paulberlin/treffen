@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 
-{% block titleh1 %}Buddies{% endblock %}
-{% block titleh2 %}{% endblock %}
-{% block subtitle %}{% endblock %}
+{% block title %} - Buddies{% endblock %}
 
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your buddies:
+
 <ul>
     {% for buddy in buddies %}
         <li><a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a> 
@@ -20,9 +19,29 @@ here's a list of your buddies:
         {% endif %}
         </li>
     {% empty %}
-        <li>None yet :-/</li>
+        <li>None yet :-/<br>Maybe try a different category?</li>
     {% endfor %}
 </ul>
+
+<p>
+{{ category_form }}
+</p>
+
+<script>
+document.getElementById('id_categories').addEventListener(
+     'change',
+     function() { 
+	const select = event.target;
+  	const selectedOption = select.options[select.selectedIndex];
+	if (selectedOption.text=='---------') {
+		location.href='{% url 'buddies' %}/';
+	} else {
+		location.href='{% url 'buddies' %}/' + selectedOption.text;
+	}
+	},
+     false
+  );
+</script>
 
 <details {{ open_details }}>
 <summary>Add a buddy</summary>

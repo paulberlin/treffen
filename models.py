@@ -85,6 +85,7 @@ class Buddy(models.Model):
   # Fields
   name = models.CharField(max_length=50)
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True)
 
   # Metadata
   class Meta:
@@ -133,6 +134,7 @@ class Meetup(models.Model):
   location = models.ForeignKey(Location, on_delete=models.PROTECT)
   buddies = models.ManyToManyField(Buddy)
   date  = models.DateField()
+  category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True)
 
   # check date validity during save
   def save(self, *args, **kwargs):

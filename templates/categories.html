@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %} - Categories{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here's a list of your categories:
+
+<ul>
+     {% for category in categories %}
+        <li><a href="{% url 'category_details' category.id %}">{{ category.name }}</a></li>
+     {% empty %} 
+        <li>None yet :-/</li>
+     {% endfor %}
+</ul>
+
+<details {{ open_details }}>
+<summary>Add a category</summary>
+<p>
+<form action="" method="post">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+</form>
+</p>
+</details>
+{% endblock %}

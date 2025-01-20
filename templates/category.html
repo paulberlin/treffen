@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %} - Category {{ category.name }}{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, 
+here are the details of your category <em>{{ category.name }}</em>:
+
+
+<details {{ open_details }}>
+<summary>Update category</summary>
+<p>
+<form action="" method="post" id="form">
+{{ form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete category</a>
+<dialog id="dialog-demo">
+<p>Please confirm deleting category <em>{{ category.name }}</em><br>
+(Note that the category can only be removed when it's not used at any meetup or buddy.)</p>
+<button onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()">Confirm</button>
+<br>
+<a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+</dialog>
+</form>
+</p>
+</details>
+<p><a href="{% url 'categories' %}">Back to categories list</a></p>
+
+{% endblock %}
