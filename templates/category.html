@@ -5,7 +5,24 @@
 {% block content %}
 Hi {{ user.username }}, 
 here are the details of your category <em>{{ category.name }}</em>:
+<ul>
+<li>Used at 
+{% if category.how_often_meetup == 0 %}no meetups yet
+{% else %}
+<a href="{% url 'meetups_cat' category.name %}">{% if category.how_often_meetup == 1 %}one meetup</a> 
+{% else %}{{ category.how_often_meetup }} meetups</a>{% endif %}
+{% endif %}
+</li>
 
+<li>Used at 
+{% if category.how_often_buddy == 0 %}no buddies yet
+{% else %}
+<a href="{% url 'buddies_cat' category.name %}">{% if category.how_often_buddy == 1 %}one buddy</a> 
+{% else %}{{ category.how_often_buddy }} buddies</a>{% endif %}
+{% endif %}
+</li>
+
+</ul>
 
 <details {{ open_details }}>
 <summary>Update category</summary>

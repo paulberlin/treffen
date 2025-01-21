@@ -13,10 +13,10 @@
     <a href="/"><img src="/static/logo.png" alt="Logo"/></a>
 {% if user.is_authenticated %}
 <nav>
-  <a href="{% url 'buddies' %}">My Buddies</a>
-  <a href="{% url 'locations' %}">My Locations</a>
-  <a href="{% url 'meetups' %}">My Meetups</a>
-  <a href="{% url 'categories' %}">My Categories</a>
+  <a href="{% url 'buddies' %}" {% if highlight == 'buddies' %}class="current"{% endif %}>My Buddies</a>
+  <a href="{% url 'locations' %}" {% if highlight == 'locations' %}class="current"{% endif %}>My Locations</a>
+  <a href="{% url 'meetups' %}" {% if highlight == 'meetups' %}class="current"{% endif %}>My Meetups</a>
+  <a href="{% url 'categories' %}" {% if highlight == 'categories' %}class="current"{% endif %}>My Categories</a>
   <a style="background:var(--accent);color:var(--bg);" href="#" onclick="document.getElementById('logout').submit()">Logout</a>
 </nav>
 <form action="{% url 'logout' %}" method="post" id="logout">

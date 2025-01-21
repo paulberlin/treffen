@@ -29,6 +29,14 @@ class Category(models.Model):
     """String for representing the object (in Admin site etc.)."""
     return self.name
 
+  @property
+  def how_often_meetup(self):
+    return Meetup.objects.filter(category__exact=self.id).count()
+
+  @property
+  def how_often_buddy(self):
+    return Buddy.objects.filter(category__exact=self.id).count()
+
 
 class Location(models.Model):
   # Fields

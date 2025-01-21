@@ -72,8 +72,29 @@
 
 {% block content %}
 Hi {{ user.username }}, 
-here's your timeline:
+here's a list of your meetups:
 
+<p>
+{{ category_form }}
+</p>
+
+<script>
+document.getElementById('id_categories').addEventListener(
+     'change',
+     function() { 
+        const select = event.target;
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption.text=='---------') {
+                location.href='{% url 'meetups' %}/';
+        } else {
+                location.href='{% url 'meetups' %}/' + selectedOption.text;
+        }
+        },
+     false
+  );
+</script>
+
+{% if meetups_amount > 0 %}
 <div class="timeline">
 <div class="timeline-line" role="presentation">
 </div>
@@ -88,8 +109,6 @@ here's your timeline:
         </div>
         </a>
         </li>
-    {% empty %}
-        <li>None yet :-/</li>
     {% endfor %}
 </ol><!-- /.timeline-events -->
 </div><!-- /.timeline -->
@@ -123,6 +142,12 @@ for(var loc_id in pins){
     marker.bindPopup(meetups[loc_id]).openPopup();
 }
 </script>
+
+{% else %}
+<ul>
+        <li>None yet :-/<br>Maybe try a different category?</li>
+</ul>
+{% endif %} 
 
 <details {{ open_details }}>
 <summary>Add a meetup</summary>

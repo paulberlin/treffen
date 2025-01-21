@@ -18,6 +18,7 @@ urlpatterns = [
     path('meetups/', views.meetups, name='meetups'),
     path('meetups', views.meetups, name='meetups'),
     path('meetups/<int:id>', views.meetup_details, name='meetup_details'),
+    path('meetups/<str:cat>', views.meetups, name='meetups_cat'),
     # categories
     path('categories/', views.categories, name='categories'),
     path('categories', views.categories, name='categories'),

@@ -12,6 +12,11 @@ from .models import Category
 class AddCategory(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
+  
+  def clean_name(self):
+    data = self.cleaned_data['name']
+    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+
   class Meta:
     model = Category
     fields = ('__all__')
@@ -26,6 +31,11 @@ class AddCategory(forms.ModelForm):
 class AddBuddy(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
+  
+  def clean_name(self):
+    data = self.cleaned_data['name']
+    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+
   class Meta:
     model = Buddy
     fields = ('__all__')
@@ -44,6 +54,11 @@ class AddBuddy(forms.ModelForm):
 class AddLocation(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
+  
+  def clean_name(self):
+    data = self.cleaned_data['name']
+    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+
   class Meta:
     model = Location
     fields = ('__all__')
@@ -62,6 +77,11 @@ class AddLocation(forms.ModelForm):
 class AddMeetup(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
+  
+  def clean_name(self):
+    data = self.cleaned_data['name']
+    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+
   class Meta:
     model = Meetup
     fields = ('__all__')
