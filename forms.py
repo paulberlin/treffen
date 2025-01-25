@@ -49,7 +49,7 @@ class AddBuddy(forms.ModelForm):
 
   def __init__(self, user, *args, **kwargs):
     super(AddBuddy, self).__init__(*args, **kwargs)
-    self.fields['category'].queryset = Category.objects.filter(owner=user)
+    self.fields['category'].queryset = Category.objects.filter(owner=user).order_by('name')
 
 class AddLocation(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
@@ -96,9 +96,9 @@ class AddMeetup(forms.ModelForm):
 
   def __init__(self, user, *args, **kwargs):
     super(AddMeetup, self).__init__(*args, **kwargs)
-    self.fields['buddies'].queryset = Buddy.objects.filter(owner=user)
-    self.fields['location'].queryset = Location.objects.filter(owner=user)
-    self.fields['category'].queryset = Category.objects.filter(owner=user)
+    self.fields['buddies'].queryset = Buddy.objects.filter(owner=user).order_by('name')
+    self.fields['location'].queryset = Location.objects.filter(owner=user).order_by('name')
+    self.fields['category'].queryset = Category.objects.filter(owner=user).order_by('name')
   
   def clean(self):
     cleaned_data = super().clean()
@@ -116,7 +116,7 @@ class SelectCategory(forms.Form):
 
   def __init__(self, user, *args, **kwargs):
     super(SelectCategory, self).__init__(*args, **kwargs)
-    self.fields['categories'].queryset = Category.objects.filter(owner=user)
+    self.fields['categories'].queryset = Category.objects.filter(owner=user).order_by('name')
     self.fields['categories'].label = "Select a category to filter"
 
 

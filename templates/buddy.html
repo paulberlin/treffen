@@ -4,7 +4,7 @@
 
 {% block content %}
 Hi {{ user.username }}, 
-here are the details of your buddy <em>{{ buddy.name }}</em>:
+here are the details of your buddy <em>{{ buddy.name }}</em>{% if buddy.category %} (category: {{ buddy.category }}){% endif %}:
 
 {% if buddy.how_often > 0 %}
 <ul>
