@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import get_list_or_404
 from django.conf import settings
 from django.db.models import Count
+from datetime import date
+from django.db.models.functions import Lower
 
 from .models import Buddy
 from .models import Location
@@ -40,17 +42,19 @@ def buddies(request, cat=""):
           return redirect('index')
         form.save()
         return redirect('buddies')
-      open_details = "open"
-    buddies = Buddy.objects.filter(owner__exact=request.user).order_by('name')
+      open_details = "open" # show errormessage
+    buddies = Buddy.objects.filter(owner__exact=request.user).order_by(Lower('name'))
     category = Category.objects.filter(owner__exact=request.user).filter(name=cat).first()
     category_form = SelectCategory(request.user.id)
     cat_not_found = 0
     if category:
       category_form = SelectCategory(request.user.id, initial={'categories': category.id})
-      buddies = Buddy.objects.filter(owner__exact=request.user).filter(category__exact=category).order_by('name')
+      buddies = Buddy.objects.filter(owner__exact=request.user).filter(category__exact=category).order_by(Lower('name'))
     else:
       cat_not_found = 1
-    context = { 'buddies': buddies, "form": form, "open_details": open_details, "category_form": category_form, "cat_not_found": cat_not_found, "highlight": "buddies" }
+    buddies_without_category = Buddy.objects.filter(owner__exact=request.user).filter(category__isnull=True)
+    categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
+    context = { 'buddies': buddies, "buddies_without_category": buddies_without_category, "form": form, "open_details": open_details, "category_form": category_form, "cat_not_found": cat_not_found, "highlight": "buddies", "categories": categories, "filter": cat }
     return render(request, 'buddies.html', context)
   else:
     return redirect('login')
@@ -75,7 +79,11 @@ def buddy_details(request, id):
         return redirect('buddies')
       # validation failed, open form to show error
       open_details = "open"
-    context = { 'buddy': buddy, "form": form, "open_details": open_details, "highlight": "buddies" }
+    last_meetup = Meetup.objects.filter(owner__exact=request.user).filter(buddies=id).order_by('-date').first()
+    days_since_last_meetup = 0
+    if last_meetup:
+      days_since_last_meetup = (date.today() - last_meetup.date).days
+    context = { 'buddy': buddy, "form": form, "open_details": open_details, "highlight": "buddies", "last_meetup_days": days_since_last_meetup }
     return render(request, 'buddy.html', context)
   else:
     return redirect('login')
@@ -96,7 +104,7 @@ def locations(request):
         form.save()
         return redirect('locations')
       open_details = "open"
-    locations = Location.objects.filter(owner__exact=request.user).order_by('name')
+    locations = Location.objects.filter(owner__exact=request.user).order_by(Lower('name'))
     context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "highlight": "locations" }
     return render(request, 'locations.html', context)
   else:
@@ -160,7 +168,8 @@ def meetups(request, cat=""):
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
     meetups_amount = meetups.count()
-    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "cat_not_found": cat_not_found, "meetups_amount": meetups_amount, "highlight": "meetups" }
+    categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
+    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "cat_not_found": cat_not_found, "meetups_amount": meetups_amount, "highlight": "meetups", "categories": categories }
     return render(request, 'meetups.html', context)
   else:
     return redirect('login')
@@ -205,7 +214,7 @@ def categories(request):
         form.save()
         return redirect('categories')
       open_details = "open"
-    categories = Category.objects.filter(owner__exact=request.user).order_by('name')
+    categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
     context = { 'categories': categories, "form": form, "open_details": open_details, "highlight": "categories" }
     return render(request, 'categories.html', context)
   else:

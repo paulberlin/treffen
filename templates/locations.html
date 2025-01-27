@@ -18,6 +18,9 @@
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your locations:
+<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new location</a>
+<p>
+
 <ul>
     {% for location in locations %}
         <li><a href="{% url 'location_details' location.id %}">{{ location.name }}</a> 
@@ -40,17 +43,14 @@ here's a list of your locations:
 <div style="height: 250px;" id="map"></div>
 </details>
 
-<details {{ open_details }}>
+<details {{ open_details }} id="new">
 <summary>Add a location</summary>
-<p>
 <form action="" method="post">
 {{ form }}
 {% csrf_token %}
 <input type="submit" value="Make it so!">
 </form>
-</p>
 <div style="height: 250px;" id="new_map"></div>
-
 </details>
 
 <script>
@@ -97,5 +97,5 @@ function onMapClick(e) {
 }
 new_map.on('click', onMapClick);
 </script>
-
+</p>
 {% endblock %}

@@ -5,10 +5,24 @@
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your buddies:
-
+<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new buddy</a>
+<p>
+{% if filter %}
+<details open>
+<summary>Filtered buddies</summary>
 <p>
 {{ category_form }}
 </p>
+
+<ul>
+ {% for buddy in buddies %}
+    {% include "buddy_snippet.html" with buddy=buddy %}
+ {% empty %}
+    <li>None yet :-/<br>Maybe try a different category?</li>
+ {% endfor %}
+</ul>
+<a href="{% url 'buddies' %}">Clear filter</a>
+</details>
 
 <script>
 document.getElementById('id_categories').addEventListener(
@@ -26,31 +40,42 @@ document.getElementById('id_categories').addEventListener(
   );
 </script>
 
+{% else %}
+ 
+{% if buddies_without_category %}
+<details>
+<summary><em>No category</em></summary>
 <ul>
-    {% for buddy in buddies %}
-        <li><a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a> 
-        {% if buddy.how_often > 0 %}
-        (met
-        {% if buddy.how_often == 1 %}one time, on
-        {% else %}{{ buddy.how_often }} times, latest on{% endif %}
-        {{ buddy.latest_meetup.date|date:"Y-m-d" }})
-        {% else %}
-	(not met yet)
-        {% endif %}
-        </li>
-    {% empty %}
-        <li>None yet :-/<br>Maybe try a different category?</li>
-    {% endfor %}
+  {% for buddy in buddies_without_category %}
+    {% include "buddy_snippet.html" with buddy=buddy %}
+  {% endfor %}
 </ul>
+</details>
+{% endif %}
 
-<details {{ open_details }}>
+
+{% for cat in categories %}
+{% if cat.how_often_buddy > 0 %}
+<details>
+<summary>{{ cat }}</summary>
+<ul>
+  {% for buddy in cat.buddy_set.all %}
+    {% include "buddy_snippet.html" with buddy=buddy %}
+  {% endfor %}
+</ul>
+</details>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<details {{ open_details }} id="new">
 <summary>Add a buddy</summary>
-<p>
 <form action="" method="post">
 {{ form }}
 {% csrf_token %}
 <input type="submit" value="Make it so!">
 </form>
-</p>
 </details>
+
+</p>
 {% endblock %}

@@ -1,0 +1,10 @@
+<li><a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a> 
+{% if buddy.how_often > 0 %}
+(met
+{% if buddy.how_often == 1 %}one time, on
+{% else %}{{ buddy.how_often }} times, latest on{% endif %}
+{{ buddy.latest_meetup.date|date:"Y-m-d" }})
+{% else %}
+(not met yet)
+{% endif %}
+</li>

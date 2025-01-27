@@ -5,6 +5,8 @@
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your categories:
+<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new category</a>
+<p>
 
 <ul>
      {% for category in categories %}
@@ -14,14 +16,14 @@ here's a list of your categories:
      {% endfor %}
 </ul>
 
-<details {{ open_details }}>
+<details {{ open_details }} id="new">
 <summary>Add a category</summary>
-<p>
 <form action="" method="post">
 {{ form }}
 {% csrf_token %}
 <input type="submit" value="Make it so!">
 </form>
-</p>
 </details>
+
+</p>
 {% endblock %}

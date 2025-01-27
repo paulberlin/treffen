@@ -73,6 +73,7 @@
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your meetups:
+<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new meetup</a>
 
 <p>
 {{ category_form }}
@@ -149,9 +150,8 @@ for(var loc_id in pins){
 </ul>
 {% endif %} 
 
-<details {{ open_details }}>
+<details {{ open_details }} id="new">
 <summary>Add a meetup</summary>
-<p>
 {% if locations_amount == 0 %}
 <a href="{% url 'locations' %}">Please add a location first.</a>
 {% elif buddies_amount == 0 %}
@@ -163,7 +163,6 @@ for(var loc_id in pins){
 <input type="submit" value="Make it so!">
 </form>
 {% endif %}
-</p>
 </details>
 
 {% endblock %}
