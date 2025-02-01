@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/simple.min.css">
+    <link rel="stylesheet" href="/static/custom.css">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <title>Buddy-Tracker{% block title %}{% endblock %}</title>
+    <title>Buddy-Logger{% block title %}{% endblock %}</title>
     {% block head %}{% endblock %}
 </head>
 <body>
   <header>
-    <a href="/"><img src="/static/logo.png" alt="Logo"/></a>
+    <a href="/"><img src="/static/buddy_logger_2.png" alt="Logo"/></a>
 {% if user.is_authenticated %}
 <nav>
   <a href="{% url 'buddies' %}" {% if highlight == 'buddies' %}class="current"{% endif %}>My Buddies</a>
   <a href="{% url 'locations' %}" {% if highlight == 'locations' %}class="current"{% endif %}>My Locations</a>
   <a href="{% url 'meetups' %}" {% if highlight == 'meetups' %}class="current"{% endif %}>My Meetups</a>
   <a href="{% url 'categories' %}" {% if highlight == 'categories' %}class="current"{% endif %}>My Categories</a>
-  <a style="background:var(--accent);color:var(--bg);" href="#" onclick="document.getElementById('logout').submit()">Logout</a>
+  <a id="logout_link" style="background:var(--accent);color:var(--bg);" href="{% url 'confirm_logout' %}" onclick="document.getElementById('logout').submit()">Logout</a>
+  <script>document.getElementById("logout_link").href="#";</script>
 </nav>
 <form action="{% url 'logout' %}" method="post" id="logout">
   {% csrf_token %}
@@ -32,7 +34,7 @@
 <main>
 {% if user.is_authenticated %}
 
-{% block content %}Welcome to Buddy-Tracker.{% endblock %}
+{% block content %}Welcome to Buddy-Logger.{% endblock %}
 
 {% else %}
 

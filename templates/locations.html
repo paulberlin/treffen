@@ -38,10 +38,12 @@ here's a list of your locations:
     {% endfor %}
 </ul>
 
+{% if locations %}
 <details>
 <summary>Map of your locations</summary>
 <div style="height: 250px;" id="map"></div>
 </details>
+{% endif %}
 
 <details {{ open_details }} id="new">
 <summary>Add a location</summary>
@@ -59,12 +61,18 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
+var lat_lng = [];
 {% for location in locations %}
   {% if location.lng %}
     var marker{{ location.id }} = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
-    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.clean_name }}</a>').openPopup();
+    lat_lng.push([{{ location.lat }}, {{ location.lng }}]);
+    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.clean_name }}</a>');
   {% endif %}
 {% endfor %}
+if (lat_lng.length > 0) {
+  var bounds = new L.LatLngBounds(lat_lng);
+  map.fitBounds(bounds);
+}
 
 
 var new_map = L.map('new_map').setView([{{ map_lat }}, {{ map_lng }}], 13);

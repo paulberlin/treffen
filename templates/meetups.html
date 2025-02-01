@@ -18,7 +18,7 @@
   position: relative;
 }
 .timeline-line{
-  border-left:3px solid #f4b73f;
+  border-left:3px solid #c29f5d;
   position: absolute;
   margin-left:90px;
   z-index: -1;
@@ -51,7 +51,7 @@
   margin-left:2em;
 }
 .timeline-date{
-  background-color:#f4b73f;
+  background-color:#c29f5d;
   font-size: 0.9em;
   color:#000;
   width:100px;
@@ -138,9 +138,15 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
+var lat_lng = [];
 for(var loc_id in pins){
     var marker = L.marker(pins[loc_id]).addTo(map);
-    marker.bindPopup(meetups[loc_id]).openPopup();
+    marker.bindPopup(meetups[loc_id]);
+    lat_lng.push(pins[loc_id]);
+}
+if (lat_lng.length > 0) {
+  var bounds = new L.LatLngBounds(lat_lng);
+  map.fitBounds(bounds);
 }
 </script>
 

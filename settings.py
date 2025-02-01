@@ -25,9 +25,9 @@ SECRET_KEY = 'django-insecure-uk&og32^ctjnz8um8s7t4+&v)bb6j2mie8&6%&9^k5_7)w=kg=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cassiopeia.uberspace.de', 'treffn.uber.space']
+ALLOWED_HOSTS = ['cassiopeia.uberspace.de', 'treffn.uber.space', 'buddy-logger.com', 'www.buddy-logger.com']
 
-CSRF_TRUSTED_ORIGINS = ['https://treffn.uber.space']
+CSRF_TRUSTED_ORIGINS = ['https://treffn.uber.space', 'https://buddy-logger.com', 'https://www.buddy-logger.com']
 
 # Application definition
 

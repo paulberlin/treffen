@@ -1,4 +1,4 @@
-<li><a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a> 
+<a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a> 
 {% if buddy.how_often > 0 %}
 (met
 {% if buddy.how_often == 1 %}one time, on
@@ -7,4 +7,3 @@
 {% else %}
 (not met yet)
 {% endif %}
-</li>

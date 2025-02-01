@@ -16,7 +16,7 @@ here's a list of your buddies:
 
 <ul>
  {% for buddy in buddies %}
-    {% include "buddy_snippet.html" with buddy=buddy %}
+    <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
  {% empty %}
     <li>None yet :-/<br>Maybe try a different category?</li>
  {% endfor %}
@@ -47,7 +47,7 @@ document.getElementById('id_categories').addEventListener(
 <summary><em>No category</em></summary>
 <ul>
   {% for buddy in buddies_without_category %}
-    {% include "buddy_snippet.html" with buddy=buddy %}
+    <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
   {% endfor %}
 </ul>
 </details>
@@ -60,7 +60,7 @@ document.getElementById('id_categories').addEventListener(
 <summary>{{ cat }}</summary>
 <ul>
   {% for buddy in cat.buddy_set.all %}
-    {% include "buddy_snippet.html" with buddy=buddy %}
+    <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
   {% endfor %}
 </ul>
 </details>

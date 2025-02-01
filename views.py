@@ -23,11 +23,41 @@ MAP_LNG = "13.404954"
 
 def index(request):
   context = {}
+  if request.user.is_authenticated:
+    meetups = Meetup.objects.filter(owner__exact=request.user).order_by('-date')
+    latest_meetup = None
+    frequency = 0
+    days_since_last_meetup = 0
+    if meetups:
+      latest_meetup = meetups.first()
+      first_meetup = meetups.last()
+      days_diff = (latest_meetup.date - first_meetup.date).days + 1
+      frequency = days_diff / meetups.count()
+      days_since_last_meetup = (date.today() - latest_meetup.date).days
+    locations = Location.objects.filter(owner__exact=request.user)
+    location = None
+    location_counter = 0
+    for l in locations:
+      if l.how_often > location_counter: # we can't sort by property :-/
+        location_counter = l.how_often
+        location = l
+    buddies = Buddy.objects.filter(owner__exact=request.user)
+    buddy = None
+    buddy_counter = 0
+    for b in buddies:
+      if b.how_often > buddy_counter: # we can't sort by property :-/
+        buddy_counter = b.how_often
+        buddy = b
+    context = { "meetup": latest_meetup, "location": location, "buddy": buddy, "frequency": frequency, "days_since_last_meetup": days_since_last_meetup }
   return render(request, 'index.html', context)
 
 def about(request):
   context = {}
   return render(request, 'about.html', context)
+
+def logout(request):
+  context = {}
+  return render(request, 'logout.html', context)
 
 def buddies(request, cat=""):
   if request.user.is_authenticated:

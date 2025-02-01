@@ -44,8 +44,6 @@ class Location(models.Model):
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   lng = models.FloatField(blank=True, null=True)
   lat = models.FloatField(blank=True, null=True)
-  #lng = models.CharField(max_length=50, blank=True)
-  #lat = models.CharField(max_length=50, blank=True)
 
   # Metadata
   class Meta:

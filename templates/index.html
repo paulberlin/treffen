@@ -3,6 +3,36 @@
 {% block title %} - Welcome{% endblock %}
 
 {% block content %}
-Hi {{ user.username }}, welcome to Buddy Tracker!
-<br>
+Hi {{ user.username }}, welcome to Buddy Logger!
+
+<p>
+{% if frequency > 1 %}
+On average, you have a meetup every
+{{ frequency | floatformat:-1 }}
+days.
+{% endif %}
+{% if days_since_last_meetup > frequency %}
+Your last meetup is already {{ days_since_last_meetup }} days ago, time to organize a meetup again?!
+{% endif %}
+</p>
+
+
+{% if meetup %}
+<p>Last meetup was <a href="{% url 'meetup_details' meetup.id %}">{{ meetup.name }} (@{{ meetup.location }}, 
+    with {{ meetup.buddies_list }})</a> on {{ meetup.date|date:"Y-m-d" }}</p>
+{% endif %}
+
+{% if location.how_often > 1 %}
+<p>Location visited the most is 
+<a href="{% url 'location_details' location.id %}">{{ location.name }}</a>
+(visited {{ location.how_often }} times, latest on
+{{ location.latest_meetup.date|date:"Y-m-d" }})</p>
+{% endif %}
+
+{% if buddy.how_often > 1 %}
+<p>Buddy met the most is
+{% include "buddy_snippet.html" with buddy=buddy %}
+</p>
+{% endif %}
+
 {% endblock %}
