@@ -15,6 +15,7 @@ urlpatterns = [
     path('locations/', views.locations, name='locations'),
     path('locations', views.locations, name='locations'),
     path('locations/<int:id>', views.location_details, name='location_details'),
+    path('locations/<str:map>', views.locations, name='locations_map'),
     # meetups
     path('meetups/', views.meetups, name='meetups'),
     path('meetups', views.meetups, name='meetups'),

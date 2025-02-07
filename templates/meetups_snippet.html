@@ -1,0 +1,62 @@
+
+{% if meetups %}
+<div class="timeline">
+<div class="timeline-line" role="presentation">
+</div>
+<ol class="timeline-events">
+    {% for meetup in meetups %}
+        <li class="timeline-event">
+        <div class="timeline-date"><time>{{ meetup.date|date:"Y-m-d" }}</time></div>
+        <a href="{% url 'meetup_details' meetup.id %}">
+        <div class="timeline-description">
+{{ meetup.name }} (@{{ meetup.location }}, 
+        with {{ meetup.buddies_list }})
+        </div>
+        </a>
+        </li>
+    {% endfor %}
+</ol><!-- /.timeline-events -->
+</div><!-- /.timeline -->
+</div><!-- /.container -->
+
+<details>
+<summary>Map of your meetups</summary>
+<div style="height: 250px;" id="map"></div>
+</details>
+
+
+<script>
+var meetups = {};
+var pins = {};
+{% for meetup in meetups %}
+if (!meetups[{{meetup.location.id}}]) { 
+meetups[{{meetup.location.id}}] = '<a href="{% url 'location_details' meetup.location.id %}">{{meetup.location.clean_name}}</a>';
+}
+meetups[{{meetup.location.id}}] += '<li><a href="{% url 'meetup_details' meetup.id %}">{{meetup.clean_name}}</a></li>';
+{% if meetup.location.lng %}
+pins[{{ meetup.location.id }}] = [{{meetup.location.lat}}, {{meetup.location.lng}}];
+{% endif %}
+{% endfor %}
+var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+var lat_lng = [];
+for(var loc_id in pins){
+    var marker = L.marker(pins[loc_id]).addTo(map);
+    marker.bindPopup(meetups[loc_id]);
+    lat_lng.push(pins[loc_id]);
+}
+if (lat_lng.length > 0) {
+  var bounds = new L.LatLngBounds(lat_lng);
+  map.fitBounds(bounds);
+}
+</script>
+
+{% else %}
+<ul>
+        <li>None yet :-/</li>
+</ul>
+{% endif %} 
+

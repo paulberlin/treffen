@@ -4,20 +4,54 @@
 
 {% block head %}
 <link rel="stylesheet" href="/static/leaflet/Control.Geocoder.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-<!-- Make sure you put this AFTER Leaflet's CSS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
 <script src="/static/leaflet/Control.Geocoder.js"></script>
 {% endblock %}
 
 
 {% block content %}
+{% comment %}
+<nav style="margin-top: -22px; margin-bottom: 30px">
+  <a href="{% url 'locations' %}" style="border: 1px solid var(--border); padding: 5px; border-radius: 0px 0px 10px 10px; margin-right: 20px">List</a>
+  <a href="{% url 'locations' %}/map" style="border: 1px solid var(--border); padding: 5px; border-radius: 0px 0px 10px 10px; margin-right: 20px">Map</a>
+</nav>
+{% endcomment %}
+
 Hi {{ user.username }}, 
-here's a list of your locations:
+
+{% if show_map %}
+here's a map of your locations: (<a href="{% url 'locations' %}">show list instead</a>)
+<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new location</a>
+<p>
+{% if locations %}
+<div style="height: 250px;" id="map"></div>
+<script>
+var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+var lat_lng = [];
+{% for location in locations %}
+  {% if location.lng %}
+    var marker{{ location.id }} = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
+    lat_lng.push([{{ location.lat }}, {{ location.lng }}]);
+    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.clean_name }}</a>');
+  {% endif %}
+{% endfor %}
+if (lat_lng.length > 0) {
+  var bounds = new L.LatLngBounds(lat_lng);
+  map.fitBounds(bounds);
+}
+</script>
+{% else %}
+<ul>
+        <li>None yet :-/</li>
+</ul>
+{% endif %}
+</p>
+
+{% else %}
+here's a list of your locations (<a href="{% url 'locations' %}/map">show map instead</a>):
 <br><a href="#new" onclick="document.getElementById('new').open = true;">add a new location</a>
 <p>
 
@@ -37,12 +71,6 @@ here's a list of your locations:
         <li>None yet :-/</li>
     {% endfor %}
 </ul>
-
-{% if locations %}
-<details>
-<summary>Map of your locations</summary>
-<div style="height: 250px;" id="map"></div>
-</details>
 {% endif %}
 
 <details {{ open_details }} id="new">
@@ -56,25 +84,6 @@ here's a list of your locations:
 </details>
 
 <script>
-var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
-var lat_lng = [];
-{% for location in locations %}
-  {% if location.lng %}
-    var marker{{ location.id }} = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
-    lat_lng.push([{{ location.lat }}, {{ location.lng }}]);
-    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.clean_name }}</a>');
-  {% endif %}
-{% endfor %}
-if (lat_lng.length > 0) {
-  var bounds = new L.LatLngBounds(lat_lng);
-  map.fitBounds(bounds);
-}
-
-
 var new_map = L.map('new_map').setView([{{ map_lat }}, {{ map_lng }}], 13);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,

@@ -18,20 +18,22 @@ Your last meetup is already {{ last_meetup_days }} days ago, time to meet again?
 {% endif %}
 
 {% if buddy.how_often > 0 %}
-<ul>
-{% for meetup in buddy.meetups %}
-  <li><a href="{% url 'meetup_details' meetup.id %}">{{ meetup.name }}</a>, on {{ meetup.date|date:"Y-m-d" }} you met with
-{% for buddy in meetup.buddies.all %}
-   <a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}
-{% endfor %} at <a href="{% url 'location_details' meetup.location.id %}">{{ meetup.location.name }}</a>
-  </li>
-{% empty %}
-  <li>No meetups yet :-/</li>
-{% endfor %}
-</ul>
+{% include "meetups_snippet.html" with meetups=buddy.meetups %}
 {% endif %}
 
 
+<details>
+<summary>Add a new meetup with this buddy</summary>
+{% if locations_amount == 0 %}
+Please <a href="{%url 'locations' %}#new">add a location</a> first.
+{% else %}
+<form action="{% url 'meetups' %}" method="post">
+{{ newmeetup_form }}
+{% csrf_token %}
+<input type="submit" value="Make it so!">
+</form>
+{% endif %}
+</details>
 
 <details {{ open_details }}>
 <summary>Update buddy</summary>

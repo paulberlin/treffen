@@ -2,12 +2,22 @@ from django import forms
 from django.db.models import Q
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ValidationError
-import datetime
+from datetime import date
 
 from .models import Buddy
 from .models import Location
 from .models import Meetup
 from .models import Category
+
+
+class SelectCategory(forms.Form):
+  categories = forms.ModelChoiceField(queryset=Category.objects.all())
+
+  def __init__(self, user, *args, **kwargs):
+    super(SelectCategory, self).__init__(*args, **kwargs)
+    self.fields['categories'].queryset = Category.objects.filter(owner=user).order_by('name')
+    self.fields['categories'].label = "Select a category to filter"
+
 
 class AddCategory(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
@@ -15,7 +25,7 @@ class AddCategory(forms.ModelForm):
   
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
 
   class Meta:
     model = Category
@@ -34,7 +44,7 @@ class AddBuddy(forms.ModelForm):
   
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
 
   class Meta:
     model = Buddy
@@ -57,7 +67,7 @@ class AddLocation(forms.ModelForm):
   
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
 
   class Meta:
     model = Location
@@ -75,12 +85,9 @@ class AddLocation(forms.ModelForm):
     super(AddLocation, self).__init__(*args, **kwargs)
 
 class AddMeetup(forms.ModelForm):
-  delete = forms.CharField(label='Delete', max_length=1, required=False)
-  delete.widget = delete.hidden_widget()
-  
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "").replace('<', '').replace('>', '').replace('/', '')
+    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
 
   class Meta:
     model = Meetup
@@ -106,17 +113,12 @@ class AddMeetup(forms.ModelForm):
   
   def clean_date(self):
     date = self.cleaned_data['date']
-    if date > datetime.date.today():
+    if date > date.today():
       raise ValidationError("The date cannot be in the future!")
     return date
 
-
-class SelectCategory(forms.Form):
-  categories = forms.ModelChoiceField(queryset=Category.objects.all())
-
-  def __init__(self, user, *args, **kwargs):
-    super(SelectCategory, self).__init__(*args, **kwargs)
-    self.fields['categories'].queryset = Category.objects.filter(owner=user).order_by('name')
-    self.fields['categories'].label = "Select a category to filter"
-
-
+class EditMeetup(AddMeetup):
+  # only in edit, we need the delete flag. For Meetup we need to separate the two actions
+  delete = forms.CharField(label='Delete', max_length=1, required=False)
+  delete.widget = delete.hidden_widget()
+  

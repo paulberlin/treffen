@@ -15,6 +15,7 @@ from .models import Category
 from .forms import AddBuddy
 from .forms import AddLocation
 from .forms import AddMeetup
+from .forms import EditMeetup
 from .forms import AddCategory
 from .forms import SelectCategory
 
@@ -34,6 +35,7 @@ def index(request):
       days_diff = (latest_meetup.date - first_meetup.date).days + 1
       frequency = days_diff / meetups.count()
       days_since_last_meetup = (date.today() - latest_meetup.date).days
+    # TODO: do some performance improvements on these "most active" topics
     locations = Location.objects.filter(owner__exact=request.user)
     location = None
     location_counter = 0
@@ -48,7 +50,14 @@ def index(request):
       if b.how_often > buddy_counter: # we can't sort by property :-/
         buddy_counter = b.how_often
         buddy = b
-    context = { "meetup": latest_meetup, "location": location, "buddy": buddy, "frequency": frequency, "days_since_last_meetup": days_since_last_meetup }
+    categories = Category.objects.filter(owner__exact=request.user)
+    category = None
+    category_counter = 0
+    for c in categories:
+      if (c.how_often_buddy + c.how_often_meetup) > category_counter:
+        category_counter = c.how_often_buddy + c.how_often_meetup
+        category = c
+    context = { "meetup": latest_meetup, "location": location, "buddy": buddy, "frequency": frequency, "days_since_last_meetup": days_since_last_meetup, "category": category }
   return render(request, 'index.html', context)
 
 def about(request):
@@ -70,8 +79,8 @@ def buddies(request, cat=""):
         # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
         if form.cleaned_data['owner'] != request.user:
           return redirect('index')
-        form.save()
-        return redirect('buddies')
+        bud = form.save()
+        return redirect('buddy_details', bud.id)
       open_details = "open" # show errormessage
     buddies = Buddy.objects.filter(owner__exact=request.user).order_by(Lower('name'))
     category = Category.objects.filter(owner__exact=request.user).filter(name=cat).first()
@@ -113,29 +122,37 @@ def buddy_details(request, id):
     days_since_last_meetup = 0
     if last_meetup:
       days_since_last_meetup = (date.today() - last_meetup.date).days
-    context = { 'buddy': buddy, "form": form, "open_details": open_details, "highlight": "buddies", "last_meetup_days": days_since_last_meetup }
+    # prepare a new meetup for the location
+    newmeetup = Meetup(owner=request.user)
+    #newmeetup.buddies.add(buddy) cannot add a default value before saving :-/
+    newmeetup_form = AddMeetup(request.user.id, instance=newmeetup)
+    locations_amount = Location.objects.filter(owner__exact=request.user).count()
+    context = { 'buddy': buddy, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "highlight": "buddies", "last_meetup_days": days_since_last_meetup, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount }
     return render(request, 'buddy.html', context)
   else:
     return redirect('login')
 
 
-def locations(request):
+def locations(request, map=""):
   if request.user.is_authenticated:
     category_form = SelectCategory(request.user.id)
     newlocation = Location(owner=request.user)
     form = AddLocation(instance=newlocation)
     open_details = ""
+    show_map = ""
+    if map == "map":
+      show_map = "1"
     if request.method == 'POST':
       form = AddLocation(request.POST, instance=newlocation)
       if form.is_valid():
         # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
         if form.cleaned_data['owner'] != request.user:
           return redirect('index')
-        form.save()
-        return redirect('locations')
+        loc = form.save()
+        return redirect('location_details', loc.pk)
       open_details = "open"
     locations = Location.objects.filter(owner__exact=request.user).order_by(Lower('name'))
-    context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "highlight": "locations" }
+    context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "highlight": "locations", "show_map": show_map }
     return render(request, 'locations.html', context)
   else:
     return redirect('login')
@@ -166,7 +183,11 @@ def location_details(request, id):
     if location.lng:
       map_lng = location.lng
       map_lat = location.lat
-    context = { 'location': location, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations" }
+    # prepare a new meetup for the location
+    newmeetup = Meetup(owner=request.user, location=location)
+    newmeetup_form = AddMeetup(request.user.id, instance=newmeetup)
+    buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
+    context = { 'location': location, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations", "newmeetup_form": newmeetup_form, "buddies_amount": buddies_amount }
     return render(request, 'location.html', context)
   else:
     return redirect('login')
@@ -183,8 +204,8 @@ def meetups(request, cat=""):
 	# when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
         if form.cleaned_data['owner'] != request.user:
           return redirect('index')
-        form.save()
-        return redirect('meetups')
+        mup = form.save()
+        return redirect('meetup_details', mup.id)
       open_details = "open"
     meetups = Meetup.objects.filter(owner__exact=request.user).order_by('-date')
     category = Category.objects.filter(owner__exact=request.user).filter(name=cat).first()
@@ -197,9 +218,8 @@ def meetups(request, cat=""):
       cat_not_found = 1
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
-    meetups_amount = meetups.count()
     categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
-    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "cat_not_found": cat_not_found, "meetups_amount": meetups_amount, "highlight": "meetups", "categories": categories }
+    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "cat_not_found": cat_not_found, "highlight": "meetups", "categories": categories }
     return render(request, 'meetups.html', context)
   else:
     return redirect('login')
@@ -211,9 +231,9 @@ def meetup_details(request, id):
     open_details = ""
     meetup = get_object_or_404(Meetup, pk=id, owner=request.user)
     meetupinstance = get_object_or_404(Meetup, pk=id, owner=request.user)
-    form = AddMeetup(request.user.id, instance=meetupinstance)
+    form = EditMeetup(request.user.id, instance=meetupinstance)
     if request.method == 'POST':
-      form = AddMeetup(request.user.id, request.POST, instance=meetupinstance)
+      form = EditMeetup(request.user.id, request.POST, instance=meetupinstance)
       if request.POST.get('delete') == "1":
         meetupinstance.delete()
         return redirect('meetups')

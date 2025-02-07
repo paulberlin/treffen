@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-import datetime
+from datetime import date
 
 class User(AbstractUser):
   pass
@@ -141,12 +141,12 @@ class Meetup(models.Model):
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   location = models.ForeignKey(Location, on_delete=models.PROTECT)
   buddies = models.ManyToManyField(Buddy)
-  date  = models.DateField()
+  date  = models.DateField(default=date.today())
   category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True)
 
   # check date validity during save
   def save(self, *args, **kwargs):
-    if self.date > datetime.date.today():
+    if self.date > date.today():
       raise ValidationError("The date cannot be in the future!")
     super(Meetup, self).save(*args, **kwargs)
 
