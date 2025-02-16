@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
@@ -11,6 +12,7 @@ from .models import Buddy
 from .models import Location
 from .models import Meetup
 from .models import Category
+from .models import Logger
 
 from .forms import AddBuddy
 from .forms import AddLocation
@@ -23,6 +25,7 @@ MAP_LAT = "52.520008"
 MAP_LNG = "13.404954"
 
 def index(request):
+  log('index', request)
   context = {}
   if request.user.is_authenticated:
     meetups = Meetup.objects.filter(owner__exact=request.user).order_by('-date')
@@ -61,14 +64,17 @@ def index(request):
   return render(request, 'index.html', context)
 
 def about(request):
+  log('about', request)
   context = {}
   return render(request, 'about.html', context)
 
 def logout(request):
+  log('logout', request)
   context = {}
   return render(request, 'logout.html', context)
 
 def buddies(request, cat=""):
+  log('buddies', request)
   if request.user.is_authenticated:
     newbuddy = Buddy(owner=request.user)
     form = AddBuddy(request.user.id, instance=newbuddy)
@@ -99,6 +105,7 @@ def buddies(request, cat=""):
     return redirect('login')
 
 def buddy_details(request, id):
+  log('buddy_details', request)
   if request.user.is_authenticated:
     context = {}
     open_details = ""
@@ -142,6 +149,9 @@ def locations(request, map=""):
     show_map = ""
     if map == "map":
       show_map = "1"
+      log('locations/map', request)
+    else:
+      log('locations', request)
     if request.method == 'POST':
       form = AddLocation(request.POST, instance=newlocation)
       if form.is_valid():
@@ -158,6 +168,7 @@ def locations(request, map=""):
     return redirect('login')
 
 def location_details(request, id):
+  log('location_details', request)
   if request.user.is_authenticated:
     context = {}
     open_details = ""
@@ -194,6 +205,7 @@ def location_details(request, id):
 
 
 def meetups(request, cat=""):
+  log('meetups', request)
   if request.user.is_authenticated:
     newmeetup = Meetup(owner=request.user)
     form = AddMeetup(request.user.id, instance=newmeetup)
@@ -226,6 +238,7 @@ def meetups(request, cat=""):
 
 
 def meetup_details(request, id):
+  log('meetup_details', request)
   if request.user.is_authenticated:
     context = {}
     open_details = ""
@@ -251,6 +264,7 @@ def meetup_details(request, id):
 
 
 def categories(request):
+  log('categories', request)
   if request.user.is_authenticated:
     newcategory = Category(owner=request.user)
     form = AddCategory(instance=newcategory)
@@ -271,6 +285,7 @@ def categories(request):
     return redirect('login')
 
 def category_details(request, id):
+  log('category_details', request)
   if request.user.is_authenticated:
     context = {}
     open_details = ""
@@ -296,4 +311,18 @@ def category_details(request, id):
 
     
 
-
+def log(page, request):
+  ref = request.META.get('HTTP_REFERER')
+  if ref:
+    ref = ref.replace('https://www.buddy-logger.com/', '')
+    ref = ref.replace('https://buddy-logger.com/', '')
+    ref = ref.replace('http://www.buddy-logger.com/', '')
+    ref = ref.replace('http://buddy-logger.com/', '')
+    ref = ref.replace('http://www.buddy-logger.com', '')
+    ref = ref.replace('http://buddy-logger.com', '')
+    ref = re.sub("meetups\/\d+", "meetup_details", ref)
+    ref = re.sub("locations\/\d+", "location_details", ref)
+    ref = re.sub("buddies\/\d+", "buddy_details", ref)
+    ref = re.sub("categories\/\d+", "category_details", ref)
+  log = Logger(page=page, referrer=ref, method=request.method)
+  log.save()

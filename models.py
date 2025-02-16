@@ -175,4 +175,17 @@ class Meetup(models.Model):
 
 
 
+class Logger(models.Model):
+  page = models.CharField(max_length=250)
+  referrer = models.CharField(max_length=250, blank=True, null=True)
+  method = models.CharField(max_length=50, blank=True, null=True)
+  timestamp = models.DateTimeField(auto_now_add=True)
 
+  # Metadata
+  class Meta:
+    ordering = ['-timestamp']
+
+  def __str__(self):
+    """String for representing the object (in Admin site etc.)."""
+    return self.page + " <- " + str(self.referrer)
+    

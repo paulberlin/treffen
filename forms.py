@@ -25,7 +25,7 @@ class AddCategory(forms.ModelForm):
   
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
+    return cleanup(data)
 
   class Meta:
     model = Category
@@ -44,7 +44,7 @@ class AddBuddy(forms.ModelForm):
   
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
+    return cleanup(data)
 
   class Meta:
     model = Buddy
@@ -67,7 +67,7 @@ class AddLocation(forms.ModelForm):
   
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
+    return cleanup(data)
 
   class Meta:
     model = Location
@@ -87,7 +87,7 @@ class AddLocation(forms.ModelForm):
 class AddMeetup(forms.ModelForm):
   def clean_name(self):
     data = self.cleaned_data['name']
-    return data.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
+    return cleanup(data)
 
   class Meta:
     model = Meetup
@@ -122,3 +122,7 @@ class EditMeetup(AddMeetup):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
   
+
+
+def cleanup(str):
+  return str.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')

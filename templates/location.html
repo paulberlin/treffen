@@ -19,7 +19,7 @@ days.
 </aside></p>
 {% endif %}
 
-{% include 'meetups_snippet.html' with meetups=location.meetups %}
+{% include 'meetups_snippet.html' with meetups=location.meetups nomap=1 %}
 
 <details>
 <summary>Add a new meetup for this location</summary>
@@ -37,19 +37,21 @@ Please <a href="{% url 'buddies' %}#new">add a buddy</a> first.
 <details {{ open_details }}>
 <summary>Update location</summary>
 <p>
+<a name="update"></a>
 <form action="" method="post" id="form">
 {{ form }}
 {% csrf_token %}
-<div style="height: 180px;" id="map"></div>
+<a href="#update" onclick="removeMarker()">Clear marker</a>
+<div style="height: 180px;" id="update_map"></div>
 <input type="submit" value="Make it so!">
 <br>
-<a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete location</a>
+<a href="#update" onclick="document.getElementById('dialog-demo').showModal()">Delete location</a>
 <dialog id="dialog-demo">
 <p>Please confirm deleting location <em>{{ location.name }}</em><br>
 (Note that the location can only be removed when it's not used at any meetup.)</p>
 <button {% if location.how_often == 0 %} onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()" {% else %} disabled="true" {% endif %}>Confirm</button>
 <br>
-<a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+<a href="#update" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
 </dialog>
 
 </form>
@@ -58,11 +60,11 @@ Please <a href="{% url 'buddies' %}#new">add a buddy</a> first.
 <p><a href="{% url 'locations' %}">Back to locations list</a></p>
 
 <script>
-var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
+var update_map = L.map('update_map').setView([{{ map_lat }}, {{ map_lng }}], 13);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+}).addTo(update_map);
 L.Control.geocoder({
   defaultMarkGeocode: false
 }).on('markgeocode', function(e) {
@@ -72,24 +74,30 @@ L.Control.geocoder({
       bbox.getNorthEast(),
       bbox.getNorthWest(),
       bbox.getSouthWest()
-    ]).addTo(map);
-    map.fitBounds(poly.getBounds());
-  }).addTo(map);
+    ]).addTo(update_map);
+    update_map.fitBounds(poly.getBounds());
+  }).addTo(update_map);
 var marker;
 {% if location.lng %}
-marker = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
+marker = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(update_map);
 {% endif %}
 function onMapClick(e) {
     //alert("You clicked the map at " + e.latlng);
     if (marker) {
         marker.setLatLng(e.latlng);
     } else {
-	marker = L.marker(e.latlng).addTo(map);
+	marker = L.marker(e.latlng).addTo(update_map);
     }
     document.getElementById('id_lng').value = e.latlng.lng;
     document.getElementById('id_lat').value = e.latlng.lat;
 }
-map.on('click', onMapClick);
+function removeMarker() {
+    update_map.removeLayer(marker);
+    marker = null;
+    document.getElementById('id_lng').value = "";
+    document.getElementById('id_lat').value = "";
+}
+update_map.on('click', onMapClick);
 </script>
 
 {% endblock %}

@@ -19,6 +19,7 @@
 </div><!-- /.timeline -->
 </div><!-- /.container -->
 
+{% if not nomap %}
 <details>
 <summary>Map of your meetups</summary>
 <div style="height: 250px;" id="map"></div>
@@ -53,6 +54,8 @@ if (lat_lng.length > 0) {
   map.fitBounds(bounds);
 }
 </script>
+
+{% endif %}
 
 {% else %}
 <ul>
