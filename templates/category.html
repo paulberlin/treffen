@@ -5,23 +5,25 @@
 {% block content %}
 Hi {{ user.username }}, 
 here are the details of your category <em>{{ category.name }}</em>:
-<ul>
-<li>Used at 
-{% if category.how_often_meetup == 0 %}no meetups yet
-{% else %}
-<a href="{% url 'meetups_cat' category.name %}">{% if category.how_often_meetup == 1 %}one meetup</a> 
-{% else %}{{ category.how_often_meetup }} meetups</a>{% endif %}
-{% endif %}
-</li>
 
+<ul>
+{% if category.category_type == 1 %}
 <li>Used at 
 {% if category.how_often_buddy == 0 %}no buddies yet
 {% else %}
-<a href="{% url 'buddies_cat' category.name %}">{% if category.how_often_buddy == 1 %}one buddy</a> 
+<a href="{% url 'buddies_cat' category.id %}">{% if category.how_often_buddy == 1 %}one buddy</a> 
 {% else %}{{ category.how_often_buddy }} buddies</a>{% endif %}
 {% endif %}
 </li>
-
+{% else %}
+<li>Used at 
+{% if category.how_often_meetup == 0 %}no meetups yet
+{% else %}
+<a href="{% url 'meetups_cat' category.id %}">{% if category.how_often_meetup == 1 %}one meetup</a> 
+{% else %}{{ category.how_often_meetup }} meetups</a>{% endif %}
+{% endif %}
+</li>
+{% endif %}
 </ul>
 
 <details {{ open_details }}>

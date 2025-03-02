@@ -13,9 +13,9 @@ from .models import Category
 class SelectCategory(forms.Form):
   categories = forms.ModelChoiceField(queryset=Category.objects.all())
 
-  def __init__(self, user, *args, **kwargs):
+  def __init__(self, user, category_type, *args, **kwargs):
     super(SelectCategory, self).__init__(*args, **kwargs)
-    self.fields['categories'].queryset = Category.objects.filter(owner=user).order_by('name')
+    self.fields['categories'].queryset = Category.objects.filter(owner=user).filter(category_type=category_type).order_by('name')
     self.fields['categories'].label = "Select a category to filter"
 
 
@@ -59,7 +59,7 @@ class AddBuddy(forms.ModelForm):
 
   def __init__(self, user, *args, **kwargs):
     super(AddBuddy, self).__init__(*args, **kwargs)
-    self.fields['category'].queryset = Category.objects.filter(owner=user).order_by('name')
+    self.fields['category'].queryset = Category.objects.filter(owner=user).filter(category_type=1).order_by('name')
 
 class AddLocation(forms.ModelForm):
   delete = forms.CharField(label='Delete', max_length=1, required=False)
@@ -105,7 +105,7 @@ class AddMeetup(forms.ModelForm):
     super(AddMeetup, self).__init__(*args, **kwargs)
     self.fields['buddies'].queryset = Buddy.objects.filter(owner=user).order_by('name')
     self.fields['location'].queryset = Location.objects.filter(owner=user).order_by('name')
-    self.fields['category'].queryset = Category.objects.filter(owner=user).order_by('name')
+    self.fields['category'].queryset = Category.objects.filter(owner=user).filter(category_type=2).order_by('name')
   
   def clean(self):
     cleaned_data = super().clean()
@@ -123,6 +123,5 @@ class EditMeetup(AddMeetup):
   delete.widget = delete.hidden_widget()
   
 
-
 def cleanup(str):
-  return str.replace('"', '').replace("'", "`").replace('<', '').replace('>', '').replace('/', '')
+  return str.replace('"', '').replace("'", "`").replace('<', '').replace('>', '')

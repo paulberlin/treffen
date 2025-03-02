@@ -8,13 +8,27 @@ here's a list of your categories:
 <br><a href="#new" onclick="document.getElementById('new').open = true;">add a new category</a>
 <p>
 
+<details>
+<summary>Buddy Categories</summary>
 <ul>
-     {% for category in categories %}
-        <li><a href="{% url 'category_details' category.id %}">{{ category.name }}</a></li>
+     {% for category in buddy_categories %}
+        <li><a href="{% url 'category_details' category.id %}">{{ category.name }}</a> ({{category.how_often_buddy}})</li>
      {% empty %} 
         <li>None yet :-/</li>
      {% endfor %}
 </ul>
+</details>
+
+<details>
+<summary>Meetup Categories</summary>
+<ul>
+     {% for category in meetup_categories %}
+        <li><a href="{% url 'category_details' category.id %}">{{ category.name }}</a> ({{category.how_often_meetup}})</li>
+     {% empty %} 
+        <li>None yet :-/</li>
+     {% endfor %}
+</ul>
+</details>
 
 <details {{ open_details }} id="new">
 <summary>Add a category</summary>

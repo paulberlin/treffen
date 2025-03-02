@@ -10,7 +10,7 @@ urlpatterns = [
     path('buddies/', views.buddies, name='buddies'),
     path('buddies', views.buddies, name='buddies'),
     path('buddies/<int:id>', views.buddy_details, name='buddy_details'),
-    path('buddies/<str:cat>', views.buddies, name='buddies_cat'),
+    path('buddies/category/<int:cat>', views.buddies, name='buddies_cat'),
     # locations
     path('locations/', views.locations, name='locations'),
     path('locations', views.locations, name='locations'),
@@ -20,7 +20,7 @@ urlpatterns = [
     path('meetups/', views.meetups, name='meetups'),
     path('meetups', views.meetups, name='meetups'),
     path('meetups/<int:id>', views.meetup_details, name='meetup_details'),
-    path('meetups/<str:cat>', views.meetups, name='meetups_cat'),
+    path('meetups/category/<int:cat>', views.meetups, name='meetups_cat'),
     # categories
     path('categories/', views.categories, name='categories'),
     path('categories', views.categories, name='categories'),

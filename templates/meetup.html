@@ -1,18 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %} - Meetup {{ meetup.name }}{% endblock %}
+{% block title %} - Meetup{% endblock %}
 
 {% block content %}
 Hi {{ user.username }}, 
 here are the details of your meetup <em>{{ meetup.name }}</em>:
 
-<p>
-On {{ meetup.date|date:"Y-m-d"}} you and 
+<div class="timeline">
+<div class="timeline-line" role="presentation">
+</div>
+<ol class="timeline-events">
+        <li class="timeline-event">
+        <div class="timeline-date"><time>{{ meetup.date|date:"Y-m-d" }}</time></div>
+        <div class="timeline-description">
+{{ meetup.name }} (<a href="{% url 'location_details' meetup.location.id %}">@{{ meetup.location }}</a>, 
+        with 
 {% for buddy in meetup.buddies.all %}
-<a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}
-{% endfor %}
-met at <a href="{% url 'location_details' meetup.location.id %}">{{ meetup.location }}</a>.
-</p>
+<a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %})
+        </div>
+        </li>
+</ol><!-- /.timeline-events -->
+</div><!-- /.timeline -->
+</div><!-- /.container -->
+
 
 <details {{ open_details }}>
 <summary>Update meetup</summary>

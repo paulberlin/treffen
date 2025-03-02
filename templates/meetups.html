@@ -20,7 +20,7 @@ document.getElementById('id_categories').addEventListener(
         if (selectedOption.text=='---------') {
                 location.href='{% url 'meetups' %}/';
         } else {
-                location.href='{% url 'meetups' %}/' + selectedOption.text;
+                location.href='{% url 'meetups' %}/category/' + selectedOption.value;
         }
         },
      false

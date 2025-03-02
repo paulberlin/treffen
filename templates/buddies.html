@@ -33,7 +33,7 @@ document.getElementById('id_categories').addEventListener(
 	if (selectedOption.text=='---------') {
 		location.href='{% url 'buddies' %}/';
 	} else {
-		location.href='{% url 'buddies' %}/' + selectedOption.text;
+		location.href='{% url 'buddies' %}/category/' + selectedOption.value;
 	}
 	},
      false

@@ -11,9 +11,13 @@ class User(AbstractUser):
   pass
 
 class Category(models.Model):
+  class CategoryType(models.IntegerChoices):
+    BUDDY = 1
+    MEETUP = 2
   # Fields
   name = models.CharField(max_length=50)
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  category_type = models.IntegerField(choices=CategoryType, default=1)
 
   # Metadata
   class Meta:
