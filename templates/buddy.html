@@ -6,7 +6,7 @@
 Hi {{ user.username }}, 
 here are the details of your buddy <em>{{ buddy.name }}</em>{% if buddy.category %} (category: {{ buddy.category }}){% endif %}:
 
-{% if buddy.how_often > 1 %}
+{% if buddy.how_often > 2 %}
 <aside><p>
 On average, you met with this buddy every
 {{ buddy.frequency | floatformat:-1 }}

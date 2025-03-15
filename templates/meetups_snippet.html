@@ -31,9 +31,9 @@ var meetups = {};
 var pins = {};
 {% for meetup in meetups %}
 if (!meetups[{{meetup.location.id}}]) { 
-meetups[{{meetup.location.id}}] = '<a href="{% url 'location_details' meetup.location.id %}">{{meetup.location.clean_name}}</a>';
+meetups[{{meetup.location.id}}] = '<a href="{% url 'location_details' meetup.location.id %}">{{meetup.location.name}}</a>';
 }
-meetups[{{meetup.location.id}}] += '<li><a href="{% url 'meetup_details' meetup.id %}">{{meetup.clean_name}}</a></li>';
+meetups[{{meetup.location.id}}] += '<li><a href="{% url 'meetup_details' meetup.id %}">{{meetup.name}}</a></li>';
 {% if meetup.location.lng %}
 pins[{{ meetup.location.id }}] = [{{meetup.location.lat}}, {{meetup.location.lng}}];
 {% endif %}

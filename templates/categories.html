@@ -20,10 +20,10 @@ here's a list of your categories:
 </details>
 
 <details>
-<summary>Meetup Categories</summary>
+<summary>Location Categories</summary>
 <ul>
-     {% for category in meetup_categories %}
-        <li><a href="{% url 'category_details' category.id %}">{{ category.name }}</a> ({{category.how_often_meetup}})</li>
+     {% for category in location_categories %}
+        <li><a href="{% url 'category_details' category.id %}">{{ category.name }}</a> ({{category.how_often_location}})</li>
      {% empty %} 
         <li>None yet :-/</li>
      {% endfor %}

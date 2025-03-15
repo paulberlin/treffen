@@ -17,10 +17,10 @@ here are the details of your category <em>{{ category.name }}</em>:
 </li>
 {% else %}
 <li>Used at 
-{% if category.how_often_meetup == 0 %}no meetups yet
+{% if category.how_often_location == 0 %}no locations yet
 {% else %}
-<a href="{% url 'meetups_cat' category.id %}">{% if category.how_often_meetup == 1 %}one meetup</a> 
-{% else %}{{ category.how_often_meetup }} meetups</a>{% endif %}
+<a href="{% url 'locations_cat' category.id %}">{% if category.how_often_meetup == 1 %}one location</a> 
+{% else %}{{ category.how_often_location }} locations</a>{% endif %}
 {% endif %}
 </li>
 {% endif %}
@@ -37,7 +37,7 @@ here are the details of your category <em>{{ category.name }}</em>:
 <a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete category</a>
 <dialog id="dialog-demo">
 <p>Please confirm deleting category <em>{{ category.name }}</em><br>
-(Note that the category can only be removed when it's not used at any meetup or buddy.)</p>
+(Note that the category can only be removed when it's not used at any location or buddy.)</p>
 <button onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()">Confirm</button>
 <br>
 <a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>

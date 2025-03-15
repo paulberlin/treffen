@@ -8,16 +8,16 @@ from .models import User
 from .models import Logger
 
 class BuddyAdmin(admin.ModelAdmin):
-  list_display = ('__str__', 'owner', 'how_often')
+  list_display = ('__str__', 'owner', 'category', 'how_often')
 
 class LocationAdmin(admin.ModelAdmin):
-  list_display = ('__str__', 'owner', 'how_often')
+  list_display = ('__str__', 'owner', 'category', 'how_often')
 
 class MeetupAdmin(admin.ModelAdmin):
-  list_display = ('__str__', 'owner')
+  list_display = ('__str__', 'owner', 'location', 'date')
 
 class CategoryAdmin(admin.ModelAdmin):
-  list_display = ('__str__', 'owner')
+  list_display = ('__str__', 'owner', 'category_type')
 
 class LoggerAdmin(admin.ModelAdmin):
   list_display = ('page', 'referrer', 'method', 'timestamp')

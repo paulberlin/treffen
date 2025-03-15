@@ -11,7 +11,7 @@
 Hi {{ user.username }}, 
 here are the details of your location <em>{{ location.name }}</em>:
 
-{% if location.how_often > 1 %}
+{% if location.how_often > 2 %}
 <aside><p>
 On average, you visit this place every 
 {{ location.frequency | floatformat:-1 }}

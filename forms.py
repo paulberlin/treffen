@@ -10,13 +10,20 @@ from .models import Meetup
 from .models import Category
 
 
-class SelectCategory(forms.Form):
-  categories = forms.ModelChoiceField(queryset=Category.objects.all())
+class SelectLocationCategory(forms.Form):
+  loc_categories = forms.ModelChoiceField(queryset=Category.objects.all())
+  def __init__(self, user, *args, **kwargs):
+    super(SelectLocationCategory, self).__init__(*args, **kwargs)
+    self.fields['loc_categories'].queryset = Category.objects.filter(owner=user).filter(category_type=2).order_by('name')
+    self.fields['loc_categories'].label = "Select a location category to filter"
 
-  def __init__(self, user, category_type, *args, **kwargs):
-    super(SelectCategory, self).__init__(*args, **kwargs)
-    self.fields['categories'].queryset = Category.objects.filter(owner=user).filter(category_type=category_type).order_by('name')
-    self.fields['categories'].label = "Select a category to filter"
+
+class SelectBuddyCategory(forms.Form):
+  bud_categories = forms.ModelChoiceField(queryset=Category.objects.all())
+  def __init__(self, user, *args, **kwargs):
+    super(SelectBuddyCategory, self).__init__(*args, **kwargs)
+    self.fields['bud_categories'].queryset = Category.objects.filter(owner=user).filter(category_type=1).order_by('name')
+    self.fields['bud_categories'].label = "Select a buddy category to filter"
 
 
 class AddCategory(forms.ModelForm):
@@ -81,8 +88,9 @@ class AddLocation(forms.ModelForm):
       "lat": forms.HiddenInput(),
     }
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, user, *args, **kwargs):
     super(AddLocation, self).__init__(*args, **kwargs)
+    self.fields['category'].queryset = Category.objects.filter(owner=user).filter(category_type=2).order_by('name')
 
 class AddMeetup(forms.ModelForm):
   def clean_name(self):
@@ -105,7 +113,6 @@ class AddMeetup(forms.ModelForm):
     super(AddMeetup, self).__init__(*args, **kwargs)
     self.fields['buddies'].queryset = Buddy.objects.filter(owner=user).order_by('name')
     self.fields['location'].queryset = Location.objects.filter(owner=user).order_by('name')
-    self.fields['category'].queryset = Category.objects.filter(owner=user).filter(category_type=2).order_by('name')
   
   def clean(self):
     cleaned_data = super().clean()

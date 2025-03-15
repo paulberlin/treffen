@@ -13,7 +13,7 @@ class User(AbstractUser):
 class Category(models.Model):
   class CategoryType(models.IntegerChoices):
     BUDDY = 1
-    MEETUP = 2
+    LOCATION = 2
   # Fields
   name = models.CharField(max_length=50)
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -34,8 +34,8 @@ class Category(models.Model):
     return self.name
 
   @property
-  def how_often_meetup(self):
-    return Meetup.objects.filter(category__exact=self.id).count()
+  def how_often_location(self):
+    return Location.objects.filter(category__exact=self.id).count()
 
   @property
   def how_often_buddy(self):
@@ -48,6 +48,7 @@ class Location(models.Model):
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   lng = models.FloatField(blank=True, null=True)
   lat = models.FloatField(blank=True, null=True)
+  category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True)
 
   # Metadata
   class Meta:
@@ -62,10 +63,6 @@ class Location(models.Model):
   def __str__(self):
     """String for representing the object (in Admin site etc.)."""
     return self.name
-
-  @property
-  def clean_name(self):
-    return self.name.replace("'", "`") # change ' into `
 
   @property
   def how_often(self):
@@ -146,7 +143,6 @@ class Meetup(models.Model):
   location = models.ForeignKey(Location, on_delete=models.PROTECT)
   buddies = models.ManyToManyField(Buddy)
   date  = models.DateField(default=date.today())
-  category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True)
 
   # check date validity during save
   def save(self, *args, **kwargs):
@@ -172,11 +168,6 @@ class Meetup(models.Model):
   @property
   def buddies_list(self):
     return ", ".join([i.name for i in self.buddies.all()])
-
-  @property
-  def clean_name(self):
-    return self.name.replace("'", "`") # change ' into `
-
 
 
 class Logger(models.Model):

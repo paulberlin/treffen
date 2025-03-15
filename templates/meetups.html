@@ -4,27 +4,55 @@
 
 {% block content %}
 Hi {{ user.username }}, 
-here's a list of your meetups:
-<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new meetup</a>
-
-<p>
-{{ category_form }}
-</p>
+below is a list of your meetups. You can also
+<a href="#new" onclick="document.getElementById('new').open = true;">add a new meetup</a>
+or filter by the categories:
+<br>
+<table width="100%" class="noborder"><tr>
+<td>{{ buddy_category_form }}</td>
+<td>{{ location_category_form }}</td>
+</tr></table>
 
 <script>
-document.getElementById('id_categories').addEventListener(
+document.getElementById('id_loc_categories').addEventListener(
      'change',
      function() { 
         const select = event.target;
         const selectedOption = select.options[select.selectedIndex];
-        if (selectedOption.text=='---------') {
-                location.href='{% url 'meetups' %}/';
-        } else {
-                location.href='{% url 'meetups' %}/category/' + selectedOption.value;
-        }
+	const buddy_select = document.getElementById('id_bud_categories')
+	const buddy_selectedOption = buddy_select.options[buddy_select.selectedIndex];
+	calculateURL(selectedOption, buddy_selectedOption)
         },
      false
   );
+
+document.getElementById('id_bud_categories').addEventListener(
+     'change',
+     function() { 
+        const select = event.target;
+        const selectedOption = select.options[select.selectedIndex];
+	const loc_select = document.getElementById('id_loc_categories')
+	const loc_selectedOption = loc_select.options[loc_select.selectedIndex];
+	calculateURL(loc_selectedOption, selectedOption)
+        },
+     false
+  );
+
+function calculateURL(locSelect, budSelect) {
+	var url = "";
+	if (budSelect.text == "---------") {
+		url += "0";
+	} else {
+		url += budSelect.value;
+	}
+	url += "-";
+        if (locSelect.text=='---------') {
+                url += "0";
+        } else {
+		url += locSelect.value;
+        }
+        location.href='{% url 'meetups' %}/category/' + url;
+}
 </script>
 
 {% include "meetups_snippet.html" with meetups=meetups %}

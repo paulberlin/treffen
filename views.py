@@ -19,7 +19,8 @@ from .forms import AddLocation
 from .forms import AddMeetup
 from .forms import EditMeetup
 from .forms import AddCategory
-from .forms import SelectCategory
+from .forms import SelectLocationCategory
+from .forms import SelectBuddyCategory
 
 MAP_LAT = "52.520008"
 MAP_LNG = "13.404954"
@@ -57,8 +58,8 @@ def index(request):
     category = None
     category_counter = 0
     for c in categories:
-      if (c.how_often_buddy + c.how_often_meetup) > category_counter:
-        category_counter = c.how_often_buddy + c.how_often_meetup
+      if (c.how_often_buddy + c.how_often_location) > category_counter:
+        category_counter = c.how_often_buddy + c.how_often_location
         category = c
     context = { "meetup": latest_meetup, "location": location, "buddy": buddy, "frequency": frequency, "days_since_last_meetup": days_since_last_meetup, "category": category }
   return render(request, 'index.html', context)
@@ -87,20 +88,16 @@ def buddies(request, cat=0):
         bud = form.save()
         return redirect('buddy_details', bud.id)
       open_details = "open" # show errormessage
-    buddies = Buddy.objects.filter(owner__exact=request.user).order_by(Lower('name'))
-    category = Category.objects.filter(owner__exact=request.user).filter(id=cat).first()
-    category_form = SelectCategory(request.user.id, 1)
-    cat_not_found = 0
-    if category:
+    categories = ""
+    buddies_without_category = ""
+    if cat:
       log('buddies_by_category', request)
-      category_form = SelectCategory(request.user.id, 1, initial={'categories': category.id})
-      buddies = Buddy.objects.filter(owner__exact=request.user).filter(category__exact=category).order_by(Lower('name'))
+      categories = Category.objects.filter(owner__exact=request.user).filter(pk=cat)
     else:
       log('buddies', request)
-      cat_not_found = 1
-    buddies_without_category = Buddy.objects.filter(owner__exact=request.user).filter(category__isnull=True)
-    categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
-    context = { 'buddies': buddies, "buddies_without_category": buddies_without_category, "form": form, "open_details": open_details, "category_form": category_form, "cat_not_found": cat_not_found, "highlight": "buddies", "categories": categories, "filter": cat }
+      categories = Category.objects.filter(owner__exact=request.user).filter(category_type__exact=1).order_by(Lower('name'))
+      buddies_without_category = Buddy.objects.filter(owner__exact=request.user).filter(category__isnull=True)
+    context = { "buddies_without_category": buddies_without_category, "form": form, "open_details": open_details, "highlight": "buddies", "categories": categories, "filter": cat }
     return render(request, 'buddies.html', context)
   else:
     return redirect('login')
@@ -141,19 +138,13 @@ def buddy_details(request, id):
     return redirect('login')
 
 
-def locations(request, map=""):
+def locations(request, map="", cat=0):
   if request.user.is_authenticated:
     newlocation = Location(owner=request.user)
-    form = AddLocation(instance=newlocation)
+    form = AddLocation(request.user.id, instance=newlocation)
     open_details = ""
-    show_map = ""
-    if map == "map":
-      show_map = "1"
-      log('locations/map', request)
-    else:
-      log('locations', request)
     if request.method == 'POST':
-      form = AddLocation(request.POST, instance=newlocation)
+      form = AddLocation(request.user.id, request.POST, instance=newlocation)
       if form.is_valid():
         # when we're trying to get hacked by someone putting a different owner id field in the form we avoid that
         if form.cleaned_data['owner'] != request.user:
@@ -161,8 +152,23 @@ def locations(request, map=""):
         loc = form.save()
         return redirect('location_details', loc.pk)
       open_details = "open"
-    locations = Location.objects.filter(owner__exact=request.user).order_by(Lower('name'))
-    context = { 'locations': locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "highlight": "locations", "show_map": show_map }
+    show_map = ""
+    locations = ""
+    categories = ""
+    locations_without_category = ""
+    if map == "map":
+      log('locations/map', request)
+      show_map = "1"
+      locations = Location.objects.filter(owner__exact=request.user).filter(lat__isnull=False)
+    else:
+      if cat != 0:
+        log('locations_by_category', request)
+        categories = Category.objects.filter(owner__exact=request.user).filter(pk=cat)
+      else:
+        log('locations', request)
+        categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
+        locations_without_category = Location.objects.filter(owner__exact=request.user).filter(category__isnull=True).order_by(Lower('name'))
+    context = { "locations": locations, "form": form, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "highlight": "locations", "show_map": show_map, "locations_without_category": locations_without_category, "categories": categories, "filter": cat }
     return render(request, 'locations.html', context)
   else:
     return redirect('login')
@@ -174,9 +180,9 @@ def location_details(request, id):
     open_details = ""
     location = get_object_or_404(Location, pk=id, owner=request.user)
     locationinstance = get_object_or_404(Location, pk=id, owner=request.user)
-    form = AddLocation(instance=locationinstance)
+    form = AddLocation(request.user.id, instance=locationinstance)
     if request.method == 'POST':
-      form = AddLocation(request.POST, instance=locationinstance)
+      form = AddLocation(request.user.id, request.POST, instance=locationinstance)
       if request.POST.get('delete') == "1":
         locationinstance.delete()
         return redirect('locations')
@@ -204,7 +210,7 @@ def location_details(request, id):
     return redirect('login')
 
 
-def meetups(request, cat=0):
+def meetups(request, cat=""):
   if request.user.is_authenticated:
     newmeetup = Meetup(owner=request.user)
     form = AddMeetup(request.user.id, instance=newmeetup)
@@ -219,20 +225,29 @@ def meetups(request, cat=0):
         return redirect('meetup_details', mup.id)
       open_details = "open"
     meetups = Meetup.objects.filter(owner__exact=request.user).order_by('-date')
-    category = Category.objects.filter(owner__exact=request.user).filter(id=cat).first()
-    category_form = SelectCategory(request.user.id, 2)
+    buddy_category_form = SelectBuddyCategory(request.user.id)
+    location_category_form = SelectLocationCategory(request.user.id)
     cat_not_found = 0
-    if category:
+    if cat and "-" in cat:
+      buddy_cat_id, location_cat_id = cat.split("-")
       log('meetups_by_category', request)
-      category_form = SelectCategory(request.user.id, 2, initial={'categories': category.id})
-      meetups = Meetup.objects.filter(owner__exact=request.user).filter(category__exact=category).order_by('-date')
+      if buddy_cat_id:
+        buddy_category = Category.objects.filter(owner__exact=request.user).filter(id=buddy_cat_id).first()
+        if buddy_category:
+          buddy_category_form = SelectBuddyCategory(request.user.id, initial={'bud_categories': buddy_category.id})
+          buddies = Buddy.objects.filter(category__exact=buddy_category)
+          meetups = meetups.filter(buddies__in=buddies).distinct()
+      if location_cat_id and int(location_cat_id)>0:
+        location_category = Category.objects.filter(owner__exact=request.user).filter(id=location_cat_id).first()
+        if location_category:
+          location_category_form = SelectLocationCategory(request.user.id, initial={'loc_categories': location_category.id})
+          locations = Location.objects.filter(category__exact=location_category)
+          meetups = meetups.filter(location__in=locations)
     else:
       log('meetups', request)
-      cat_not_found = 1
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
-    categories = Category.objects.filter(owner__exact=request.user).order_by(Lower('name'))
-    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "category_form": category_form, "cat_not_found": cat_not_found, "highlight": "meetups", "categories": categories }
+    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "buddy_category_form": buddy_category_form, "location_category_form": location_category_form, "cat_not_found": cat_not_found, "highlight": "meetups"}
     return render(request, 'meetups.html', context)
   else:
     return redirect('login')
@@ -280,8 +295,8 @@ def categories(request):
         return redirect('categories')
       open_details = "open"
     buddy_categories = Category.objects.filter(owner__exact=request.user).filter(category_type=1).order_by(Lower('name'))
-    meetup_categories = Category.objects.filter(owner__exact=request.user).filter(category_type=2).order_by(Lower('name'))
-    context = { 'buddy_categories': buddy_categories, "meetup_categories": meetup_categories, "form": form, "open_details": open_details, "highlight": "categories" }
+    location_categories = Category.objects.filter(owner__exact=request.user).filter(category_type=2).order_by(Lower('name'))
+    context = { 'buddy_categories': buddy_categories, "location_categories": location_categories, "form": form, "open_details": open_details, "highlight": "categories" }
     return render(request, 'categories.html', context)
   else:
     return redirect('login')
@@ -324,9 +339,10 @@ def log(page, request):
     ref = ref.replace('http://buddy-logger.com', '')
     ref = re.sub("meetups\/\d+", "meetup_details", ref)
     ref = re.sub("locations\/\d+", "location_details", ref)
+    ref = re.sub("locations\/category\/\d+", "locations_by_category", ref)
     ref = re.sub("buddies\/\d+", "buddy_details", ref)
     ref = re.sub("categories\/\d+", "category_details", ref)
-    ref = re.sub("meetups\/category\/\d+", "meetups_by_category", ref)
+    ref = re.sub("meetups\/category\/\d+-\d+", "meetups_by_category", ref)
     ref = re.sub("buddies\/category\/\d+", "buddies_by_category", ref)
     ref = re.sub("\/$", "", ref) # remove last / 
   log = Logger(page=page, referrer=ref, method=request.method)

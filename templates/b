@@ -7,6 +7,40 @@ Hi {{ user.username }},
 here's a list of your buddies:
 <br><a href="#new" onclick="document.getElementById('new').open = true;">add a new buddy</a>
 <p>
+{% if filter %}
+<details open>
+<summary>Filtered buddies</summary>
+<p>
+{{ category_form }}
+</p>
+
+<ul>
+ {% for buddy in buddies %}
+    <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
+ {% empty %}
+    <li>None yet :-/<br>Maybe try a different category?</li>
+ {% endfor %}
+</ul>
+<a href="{% url 'buddies' %}">Clear filter</a>
+</details>
+
+<script>
+document.getElementById('id_categories').addEventListener(
+     'change',
+     function() { 
+	const select = event.target;
+  	const selectedOption = select.options[select.selectedIndex];
+	if (selectedOption.text=='---------') {
+		location.href='{% url 'buddies' %}/';
+	} else {
+		location.href='{% url 'buddies' %}/category/' + selectedOption.value;
+	}
+	},
+     false
+  );
+</script>
+
+{% else %}
  
 {% if buddies_without_category %}
 <details>
@@ -22,21 +56,17 @@ here's a list of your buddies:
 
 {% for cat in categories %}
 {% if cat.how_often_buddy > 0 %}
-<details
-{% if filter %}
-open
-{% endif %}
->
+<details>
 <summary>{{ cat }}</summary>
 <ul>
-  {% for buddy in cat.buddy_set.all|dictsort:"name" %}
+  {% for buddy in cat.buddy_set.all %}
     <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
   {% endfor %}
 </ul>
-<a href="{% url 'buddies' %}">Clear filter</a>
 </details>
 {% endif %}
 {% endfor %}
+{% endif %}
 
 <details {{ open_details }} id="new">
 <summary>Add a buddy</summary>

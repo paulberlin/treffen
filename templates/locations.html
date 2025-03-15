@@ -9,13 +9,6 @@
 
 
 {% block content %}
-{% comment %}
-<nav style="margin-top: -22px; margin-bottom: 30px">
-  <a href="{% url 'locations' %}" style="border: 1px solid var(--border); padding: 5px; border-radius: 0px 0px 10px 10px; margin-right: 20px">List</a>
-  <a href="{% url 'locations' %}/map" style="border: 1px solid var(--border); padding: 5px; border-radius: 0px 0px 10px 10px; margin-right: 20px">Map</a>
-</nav>
-{% endcomment %}
-
 Hi {{ user.username }}, 
 
 {% if show_map %}
@@ -35,7 +28,7 @@ var lat_lng = [];
   {% if location.lng %}
     var marker{{ location.id }} = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
     lat_lng.push([{{ location.lat }}, {{ location.lng }}]);
-    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.clean_name }}</a>');
+    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.name }}</a>');
   {% endif %}
 {% endfor %}
 if (lat_lng.length > 0) {
@@ -55,22 +48,38 @@ here's a list of your locations (<a href="{% url 'locations' %}/map">show map in
 <br><a href="#new" onclick="document.getElementById('new').open = true;">add a new location</a>
 <p>
 
+{% if locations_without_category %}
+<details>
+<summary><em>No category</em></summary>
 <ul>
-    {% for location in locations %}
-        <li><a href="{% url 'location_details' location.id %}">{{ location.name }}</a> 
-        {% if location.how_often > 0 %}
-        (visited 
-        {% if location.how_often == 1 %}one time, on 
-        {% else %}{{ location.how_often }} times, latest on{% endif %}
-        {{ location.latest_meetup.date|date:"Y-m-d" }})
-        {% else %}
-	(not visited yet)
-	{% endif %}
-        </li>
-    {% empty %}
-        <li>None yet :-/</li>
-    {% endfor %}
+  {% for location in locations_without_category %}
+    <li>{% include "location_snippet.html" with location=location %}</li>
+  {% endfor %}
 </ul>
+</details>
+{% endif %}
+
+
+{% for cat in categories %}
+{% if cat.how_often_location > 0 %}
+<details
+{% if filter %}
+open
+{% endif %}
+>
+<summary>{{ cat }}</summary>
+<ul>
+  {% for location in cat.location_set.all|dictsort:"name" %}
+    <li>{% include "location_snippet.html" with location=location %}</li>
+  {% endfor %}
+</ul>
+{% if filter %}
+<a href="{% url 'locations' %}">Clear filter</a>
+{% endif %}
+</details>
+{% endif %}
+{% endfor %}
+
 {% endif %}
 
 <details {{ open_details }} id="new">
