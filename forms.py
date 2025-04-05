@@ -3,11 +3,21 @@ from django.db.models import Q
 from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ValidationError
 from datetime import date
+from django.contrib.auth.forms import UserCreationForm
 
+
+from .models import User
 from .models import Buddy
 from .models import Location
 from .models import Meetup
 from .models import Category
+
+class SignupForm(UserCreationForm):
+  email = forms.EmailField(max_length=200, help_text='Required')
+
+  class Meta:
+    model = User
+    fields = ('username', 'email', 'password1', 'password2')
 
 
 class SelectLocationCategory(forms.Form):
@@ -93,6 +103,7 @@ class AddLocation(forms.ModelForm):
     self.fields['category'].queryset = Category.objects.filter(owner=user).filter(category_type=2).order_by('name')
 
 class AddMeetup(forms.ModelForm):
+  date = forms.DateField(initial=date.today())
   def clean_name(self):
     data = self.cleaned_data['name']
     return cleanup(data)

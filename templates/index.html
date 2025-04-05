@@ -5,6 +5,29 @@
 {% block content %}
 Hi {{ user.username }}, welcome to Buddy Logger!
 
+
+{% if categories_count == 0 %}
+<p>No Categories were created yet, in order to create one, please <a href="{% url 'categories' %}#new">click here.</a>
+You can optionally assign a Category to a Location or Buddy, that allows for filtering and makes it easier to keep an overview.
+</p>
+{% endif %}
+
+{% if buddies_count == 0 %}
+<p>There is no Buddy yet, you can go ahead with <a href="{% url 'buddies' %}#new">creating a buddy.</a>
+Each meetup you create contains at least one buddy.
+</p>
+{% endif %}
+
+{% if locations_count == 0 %}
+<p>You didn't create a Location yet, you can <a href="{% url 'locations' %}#new">do so here.</a>
+A meetup takes place at a certain location.
+</p>
+{% endif %}
+
+{% if locations_count > 0 and buddies_count > 0 and not meetup %}
+<p>You can <a href="{% url 'meetups' %}#new">create a Meetup</a> now. A Meetup comprises of Buddies and a Location.</p>
+{% endif %}
+
 <p>
 {% if frequency > 1 %}
 On average, you have a meetup every

@@ -45,13 +45,13 @@ Please <a href="{% url 'buddies' %}#new">add a buddy</a> first.
 <div style="height: 180px;" id="update_map"></div>
 <input type="submit" value="Make it so!">
 <br>
-<a href="#update" onclick="document.getElementById('dialog-demo').showModal()">Delete location</a>
-<dialog id="dialog-demo">
+<a href="#update" onclick="document.getElementById('delete_prompt').showModal()">Delete location</a>
+<dialog id="delete_prompt">
 <p>Please confirm deleting location <em>{{ location.name }}</em><br>
 (Note that the location can only be removed when it's not used at any meetup.)</p>
 <button {% if location.how_often == 0 %} onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()" {% else %} disabled="true" {% endif %}>Confirm</button>
 <br>
-<a href="#update" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+<a href="#update" onclick="document.getElementById('delete_prompt').close()">Never mind</a>
 </dialog>
 
 </form>

@@ -46,11 +46,19 @@
 {% else %}
 
 {% block login %}
-Please <a href="{% url 'login' %}">login</a> to get started.
+Hi, welcome to Buddy Logger!
+
+<p>Please <a href="{% url 'login' %}">login</a> to get started or <a href="{% url 'register' %}">register</a>.</p>
 {% endblock %}
 
 {% endif %}
 
+<script>
+var url = document.location.href;
+if (url.match(/#new$/)) {
+  document.getElementById('new').open = true
+}
+</script>
 </main>
 
 <footer>

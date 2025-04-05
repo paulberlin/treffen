@@ -89,6 +89,7 @@ open
 {% csrf_token %}
 <input type="submit" value="Make it so!">
 </form>
+Optionally, you can click on the map to specify the exact place of this Location.
 <div style="height: 250px;" id="new_map"></div>
 </details>
 
@@ -120,6 +121,18 @@ function onMapClick(e) {
     }
     document.getElementById('id_lng').value = e.latlng.lng;
     document.getElementById('id_lat').value = e.latlng.lat;
+    var newname = document.getElementById('id_name');
+    if (newname.value == '') {
+      // retrieve search term and put as default to name field
+      var elements = document.getElementsByTagName('input');
+      for (var e in elements) {
+    	//console.log(elements[e]);
+	if (elements[e].type == "search") {
+	  //console.log(elements[e].value);
+	  newname.value = elements[e].value;
+	}
+      }
+    }
 }
 new_map.on('click', onMapClick);
 </script>

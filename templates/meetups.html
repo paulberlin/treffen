@@ -61,9 +61,9 @@ function calculateURL(locSelect, budSelect) {
 <details {{ open_details }} id="new">
 <summary>Add a meetup</summary>
 {% if locations_amount == 0 %}
-<a href="{% url 'locations' %}">Please add a location first.</a>
+<a href="{% url 'locations' %}#new">Please add a location first.</a>
 {% elif buddies_amount == 0 %}
-<a href="{% url 'buddies' %}">Please add a buddy first.</a>
+<a href="{% url 'buddies' %}#new">Please add a buddy first.</a>
 {% else %}
 <form action="" method="post">
 {{ form }}

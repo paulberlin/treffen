@@ -5,12 +5,12 @@
 {% block login %}
 <form method="post">
 <fieldset>
-<legend>Login</legend>
+<legend>Register</legend>
   {% csrf_token %}
   {{ form }}
-  <button type="submit">Login</button>
+  <button type="submit">Register</button>
 <br>
-<a href="{% url 'register' %}">or register instead</a>
+<a href="{% url 'login' %}">or login instead</a>
 </fieldset>
 </form>
 {% endblock %}

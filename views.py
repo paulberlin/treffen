@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db.models import Count
 from datetime import date
 from django.db.models.functions import Lower
+from django.contrib.auth import login
 
 from .models import Buddy
 from .models import Location
@@ -21,6 +22,7 @@ from .forms import EditMeetup
 from .forms import AddCategory
 from .forms import SelectLocationCategory
 from .forms import SelectBuddyCategory
+from .forms import SignupForm
 
 MAP_LAT = "52.520008"
 MAP_LNG = "13.404954"
@@ -41,27 +43,35 @@ def index(request):
       days_since_last_meetup = (date.today() - latest_meetup.date).days
     # TODO: do some performance improvements on these "most active" topics
     locations = Location.objects.filter(owner__exact=request.user)
+    locations_count = locations.count()
     location = None
-    location_counter = 0
+    location_how_often = 0
     for l in locations:
-      if l.how_often > location_counter: # we can't sort by property :-/
-        location_counter = l.how_often
+      if l.how_often > location_how_often: # we can't sort by property :-/
+        location_how_often = l.how_often
         location = l
     buddies = Buddy.objects.filter(owner__exact=request.user)
+    buddies_count = buddies.count()
     buddy = None
-    buddy_counter = 0
+    buddy_how_often = 0
     for b in buddies:
-      if b.how_often > buddy_counter: # we can't sort by property :-/
-        buddy_counter = b.how_often
+      if b.how_often > buddy_how_often: # we can't sort by property :-/
+        buddy_how_often = b.how_often
         buddy = b
     categories = Category.objects.filter(owner__exact=request.user)
+    categories_count = categories.count()
     category = None
-    category_counter = 0
+    category_how_often = 0
     for c in categories:
-      if (c.how_often_buddy + c.how_often_location) > category_counter:
-        category_counter = c.how_often_buddy + c.how_often_location
+      if (c.how_often_buddy + c.how_often_location) > category_how_often:
+        category_how_often = c.how_often_buddy + c.how_often_location
         category = c
-    context = { "meetup": latest_meetup, "location": location, "buddy": buddy, "frequency": frequency, "days_since_last_meetup": days_since_last_meetup, "category": category }
+    context = { "meetup": latest_meetup, "location": location, "buddy": buddy, "frequency": frequency, "days_since_last_meetup": days_since_last_meetup, "category": category,
+      "buddies_count": buddies_count,
+      "locations_count": locations_count,
+      "categories_count": categories_count
+    }
+
   return render(request, 'index.html', context)
 
 def about(request):
@@ -73,6 +83,21 @@ def logout(request):
   log('logout', request)
   context = {}
   return render(request, 'logout.html', context)
+
+def register(request):
+  log('register', request)
+  form = ""
+  if request.method == 'POST':
+    form = SignupForm(request.POST)
+    if form.is_valid():
+      user = form.save()
+      login(request, user)
+      return redirect('index')
+  else:
+    form = SignupForm()
+  context = { "form": form }
+  return render(request, 'registration/register.html', context)
+
 
 def buddies(request, cat=0):
   if request.user.is_authenticated:

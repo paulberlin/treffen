@@ -43,13 +43,13 @@ Please <a href="{%url 'locations' %}#new">add a location</a> first.
 {% csrf_token %}
 <input type="submit" value="Make it so!">
 <br>
-<a href="#" onclick="document.getElementById('dialog-demo').showModal()">Delete buddy</a>
-<dialog id="dialog-demo">
+<a href="#" onclick="document.getElementById('delete_prompt').showModal()">Delete buddy</a>
+<dialog id="delete_prompt">
 <p>Please confirm deleting buddy <em>{{ buddy.name }}</em><br>
 (Note that the buddy will be removed from meetups, but the meetup itself remains.)</p>
 <button onclick="document.getElementById('id_delete').value='1';document.getElementById('form').submit()">Confirm</button>
 <br>
-<a href="#" onclick="document.getElementById('dialog-demo').close()">Never mind</a>
+<a href="#" onclick="document.getElementById('delete_prompt').close()">Never mind</a>
 </dialog>
 
 </form>
