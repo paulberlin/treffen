@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-uk&og32^ctjnz8um8s7t4+&v)bb6j2mie8&6%&9^k5_7)w=kg='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['cassiopeia.uberspace.de', 'treffn.uber.space', 'buddy-logger.com', 'www.buddy-logger.com']
 
