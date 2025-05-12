@@ -9,8 +9,8 @@
         <div class="timeline-date"><time>{{ meetup.date|date:"Y-m-d" }}</time></div>
         <a href="{% url 'meetup_details' meetup.id %}">
         <div class="timeline-description">
-{{ meetup.name }} (@{{ meetup.location }}, 
-        with {{ meetup.buddies_list }})
+{{ meetup.name }} (@{{ meetup.location }}, with 
+{{ meetup.buddies_list }})
         </div>
         </a>
         </li>

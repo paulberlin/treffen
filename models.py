@@ -98,7 +98,7 @@ class Buddy(models.Model):
 
   # Metadata
   class Meta:
-    ordering = ['-name']
+    ordering = ['name']
     unique_together = ('owner', 'name')
 
   # Methods

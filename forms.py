@@ -103,7 +103,7 @@ class AddLocation(forms.ModelForm):
     self.fields['category'].queryset = Category.objects.filter(owner=user).filter(category_type=2).order_by('name')
 
 class AddMeetup(forms.ModelForm):
-  date = forms.DateField(initial=date.today())
+  #date = forms.DateField(initial=date.today())
   def clean_name(self):
     data = self.cleaned_data['name']
     return cleanup(data)
@@ -117,6 +117,7 @@ class AddMeetup(forms.ModelForm):
     }
     widgets = {
       "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+      #"date": forms.SelectDateWidget(),
       "owner": forms.HiddenInput(),
     }
 

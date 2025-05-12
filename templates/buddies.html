@@ -33,7 +33,9 @@ open
     <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
   {% endfor %}
 </ul>
+{% if filter %}
 <a href="{% url 'buddies' %}">Clear filter</a>
+{% endif %}
 </details>
 {% endif %}
 {% endfor %}
