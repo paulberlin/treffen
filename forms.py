@@ -4,6 +4,7 @@ from django.contrib.auth.models import Permission, User
 from django.core.exceptions import ValidationError
 from datetime import date
 from django.contrib.auth.forms import UserCreationForm
+from simplemathcaptcha.fields import MathCaptchaField
 
 
 from .models import User
@@ -14,6 +15,7 @@ from .models import Category
 
 class SignupForm(UserCreationForm):
   email = forms.EmailField(max_length=200, help_text='Required')
+  captcha = MathCaptchaField()
 
   class Meta:
     model = User

@@ -356,12 +356,9 @@ def category_details(request, id):
 def log(page, request):
   ref = request.META.get('HTTP_REFERER')
   if ref:
+    ref = ref.lower()
     ref = ref.replace('https://www.buddy-logger.com/', '')
     ref = ref.replace('https://buddy-logger.com/', '')
-    ref = ref.replace('http://www.buddy-logger.com/', '')
-    ref = ref.replace('http://buddy-logger.com/', '')
-    ref = ref.replace('http://www.buddy-logger.com', '')
-    ref = ref.replace('http://buddy-logger.com', '')
     ref = re.sub("meetups\/\d+", "meetup_details", ref)
     ref = re.sub("locations\/\d+", "location_details", ref)
     ref = re.sub("locations\/category\/\d+", "locations_by_category", ref)
@@ -370,5 +367,8 @@ def log(page, request):
     ref = re.sub("meetups\/category\/\d+-\d+", "meetups_by_category", ref)
     ref = re.sub("buddies\/category\/\d+", "buddies_by_category", ref)
     ref = re.sub("\/$", "", ref) # remove last / 
+  else:
+    if page == 'index':
+      return
   log = Logger(page=page, referrer=ref, method=request.method)
   log.save()
