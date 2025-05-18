@@ -355,7 +355,7 @@ def category_details(request, id):
 
 def log(page, request):
   ref = request.META.get('HTTP_REFERER')
-  if ref:
+  if ref and len(ref) > 0:
     ref = ref.lower()
     ref = ref.replace('https://www.buddy-logger.com/', '')
     ref = ref.replace('https://buddy-logger.com/', '')
