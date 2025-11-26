@@ -234,8 +234,10 @@ def location_details(request, id):
   else:
     return redirect('login')
 
+def meetups_cal(request):
+  return meetups(request, "", True);
 
-def meetups(request, cat=""):
+def meetups(request, cat="", cal=False):
   if request.user.is_authenticated:
     newmeetup = Meetup(owner=request.user)
     form = AddMeetup(request.user.id, instance=newmeetup)
@@ -272,7 +274,7 @@ def meetups(request, cat=""):
       log('meetups', request)
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
-    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "buddy_category_form": buddy_category_form, "location_category_form": location_category_form, "cat_not_found": cat_not_found, "highlight": "meetups"}
+    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "buddy_category_form": buddy_category_form, "location_category_form": location_category_form, "cat_not_found": cat_not_found, "highlight": "meetups", "cal": cal}
     return render(request, 'meetups.html', context)
   else:
     return redirect('login')
@@ -348,6 +350,22 @@ def category_details(request, id):
       open_details = "open"
     context = { 'category': category, "form": form, "open_details": open_details, "highlight": "categories" }
     return render(request, 'category.html', context)
+  else:
+    return redirect('login')
+
+def search(request):
+  log('search', request)
+  if request.user.is_authenticated:
+    context = {}
+    searchtext = request.GET.get('q', '')
+    if len(searchtext) > 2:
+      buddies = Buddy.objects.filter(owner=request.user).filter(name__icontains=searchtext)
+      locations = Location.objects.filter(owner=request.user).filter(name__icontains=searchtext)
+      meetups = Meetup.objects.filter(owner=request.user).filter(name__icontains=searchtext)
+      categories = Category.objects.filter(owner=request.user).filter(name__icontains=searchtext)
+      resultamount = buddies.count() + locations.count() + meetups.count() + categories.count()
+      context = {'searchtext': searchtext, 'buddies': buddies, 'locations': locations, 'meetups': meetups, 'categories': categories, 'resultamount': resultamount }
+    return render(request, 'search.html', context)
   else:
     return redirect('login')
 

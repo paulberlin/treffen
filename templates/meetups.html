@@ -1,5 +1,78 @@
 {% extends "base.html" %}
 
+{% block head %}
+{% if cal %}
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hsablonniere/activity-graph/+esm"></script>
+    <style>
+activity-graph {
+--size: 10px;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif,
+'Apple Color Emoji', 'Segoe UI Emoji';
+gap: 3px;
+border: 1px solid #d0d7de;
+border-radius: 0.375em;
+padding: 1em;
+display: inline-grid;
+}
+
+activity-graph::part(weekday-header),
+activity-graph::part(month-header) {
+font-size: 12px;
+}
+
+activity-graph::part(weekday-header),
+activity-graph::part(day) {
+height: var(--size);
+line-height: var(--size);
+}
+
+activity-graph::part(weekday-header) {
+padding-right: 0.25em;
+}
+
+activity-graph::part(weekday-header--even) {
+display: none;
+}
+
+activity-graph::part(month-header) {
+height: 13px;
+line-height: 13px;
+}
+
+activity-graph[month-limits='middle']::part(month-header) {
+text-align: center;
+}
+
+activity-graph::part(day) {
+border-radius: 2px;
+outline-offset: -1px;
+outline: 1px solid #1b1f230f;
+width: var(--size);
+}
+
+activity-graph::part(day--data-0) {
+background-color: #ebedf0;
+}
+
+activity-graph::part(day--data-1) {
+background-color: #9be9a8;
+}
+
+activity-graph::part(day--data-2) {
+background-color: #40c463;
+}
+
+activity-graph::part(day--data-3) {
+background-color: #30a14e;
+}
+
+activity-graph::part(day--data-4) {
+background-color: #216e39;
+}
+</style>
+{% endif %}
+{% endblock %}
+
 {% block title %} - Meetups{% endblock %}
 
 {% block content %}
@@ -54,8 +127,24 @@ function calculateURL(locSelect, budSelect) {
         location.href='{% url 'meetups' %}/category/' + url;
 }
 </script>
+{% if cal %}
+<script>
+</script>
+<activity-graph start-date="2024-01-01" end-date="2024-12-31" data="{
+  '2024-04-01': {
+      title: '2 contributions',
+          parts: ['level-1'],
+	    },
+	      '2024-04-04': {
+	          title: '27 contributions',
+		      parts: ['level-4'],
+		        },
+			}"
+			></activity-graph>
 
+{% else %}
 {% include "meetups_snippet.html" with meetups=meetups %}
+{% endif %}
 
 
 <details {{ open_details }} id="new">

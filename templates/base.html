@@ -21,19 +21,23 @@
     <a href="/"><img src="/static/buddy_logger_2.png" alt="Logo"/></a>
 {% if user.is_authenticated %}
 <nav>
-  <a href="{% url 'buddies' %}" {% if highlight == 'buddies' %}class="current"{% endif %}>My Buddies</a>
-  <a href="{% url 'locations' %}" {% if highlight == 'locations' %}class="current"{% endif %}>My Locations</a>
-  <a href="{% url 'meetups' %}" {% if highlight == 'meetups' %}class="current"{% endif %}>My Meetups</a>
-  <a href="{% url 'categories' %}" {% if highlight == 'categories' %}class="current"{% endif %}>My Categories</a>
+  <a href="{% url 'buddies' %}" {% if highlight == 'buddies' %}class="current"{% endif %}>👥 My Buddies</a>
+  <a href="{% url 'locations' %}" {% if highlight == 'locations' %}class="current"{% endif %}>📍 My Locations</a>
+  <a href="{% url 'meetups' %}" {% if highlight == 'meetups' %}class="current"{% endif %}>🗓️ My Meetups</a>
+  <a href="{% url 'categories' %}" {% if highlight == 'categories' %}class="current"{% endif %}>🏷️ My Categories</a>
   <a id="logout_link" style="background:var(--accent);color:var(--bg);" href="{% url 'confirm_logout' %}" onclick="document.getElementById('logout').submit()">Logout</a>
   <script>document.getElementById("logout_link").href="#";</script>
 </nav>
 <form action="{% url 'logout' %}" method="post" id="logout">
   {% csrf_token %}
 </form>
+<form method="get" action="/search">
+<input type="text" name="q" value="{{ searchtext }}">
+<button type="submit">Search</button>
+</form>
 {% else %}
 <nav>
-<a style="background:var(--accent);color:var(--bg);" href="{% url 'login' %}">Login</a>
+<a style="background:var(--accent);color:var(--bg); padding: .1rem 1rem !important;" href="{% url 'login' %}">Login</a>
 </nav>
 {% endif %}
 </header>

@@ -7,6 +7,7 @@ urlpatterns = [
     path('about', views.about, name='about'),
     path('register', views.register, name='register'),
     path('confirm_logout', views.logout, name='confirm_logout'),
+    path('search', views.search, name='search'),
     # buddies
     path('buddies/category/', views.buddies, name='buddies'),
     path('buddies/category', views.buddies, name='buddies'),
@@ -22,6 +23,9 @@ urlpatterns = [
     path('locations/<int:id>', views.location_details, name='location_details'),
     path('locations/<str:map>', views.locations, name='locations_map'),
     path('locations/category/<int:cat>', views.locations, name='locations_cat'),
+    # meetups with cal
+    path('meetups_cal/', views.meetups_cal, name='meetups'),
+    path('meetups_cal', views.meetups_cal, name='meetups'),
     # meetups
     path('meetups/', views.meetups, name='meetups'),
     path('meetups', views.meetups, name='meetups'),

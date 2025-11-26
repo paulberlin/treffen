@@ -18,6 +18,7 @@ class Category(models.Model):
   name = models.CharField(max_length=50)
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   category_type = models.IntegerField(choices=CategoryType, default=1)
+  #counter = models.PositiveIntegerField(default=0)
 
   # Metadata
   class Meta:

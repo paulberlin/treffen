@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %} - Search{% endblock %}
+
+{% block content %}
+Hi {{ user.username }}, welcome to Buddy Logger!
+<br>
+{% if searchtext %}
+<p>Search for <em>{{ searchtext }}</em> has
+{% if resultamount == 1 %}one result:
+{% else %}{{ resultamount }} results:{% endif %}
+</p>
+
+
+<details open >
+<summary>👥 My Buddies </summary>
+<ul>
+{% for buddy in buddies|dictsort:"name" %}
+<li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
+{% empty %}
+<li>No buddies found</li>
+{% endfor %}
+</ul>
+</details>
+
+<br>
+
+<details open >
+<summary>📍 My Locations </summary>
+<ul>
+{% for location in locations|dictsort:"name" %}
+<li>{% include "location_snippet.html" with location=location %}</li>
+{% empty %}
+<li>No locations found</li>
+{% endfor %}
+</ul>
+</details>
+
+<br>
+
+<details open >
+<summary>🗓️ My Meetups</summary>
+<ul>
+{% for meetup in meetups|dictsort:"name" %}
+<li><a href="{% url 'meetup_details' meetup.id %}">{{ meetup.name }} (@{{ meetup.location }} with {{ meetup.buddies_list }})</a> on {{ meetup.date|date:"Y-m-d" }}</li>
+{% empty %}
+<li>No meetups found</li>
+{% endfor %}
+</ul>
+</details>
+
+<br>
+
+<details open >
+<summary>🏷️ My Categories</summary>
+<ul>
+{% for category in categories|dictsort:"name" %}
+{% if category.category_type == 1 %}
+<li><a href="{% url 'category_details' category.id %}">👥 {{ category.name }}</a> ({{category.how_often_buddy}})</li>
+{% endif %}
+{% if category.category_type == 2 %}
+<li><a href="{% url 'category_details' category.id %}">📍 {{ category.name }}</a> ({{category.how_often_location}})</li>
+{% endif %}
+{% empty %}
+<li>No categories found</li>
+{% endfor %}
+</ul>
+</details>
+
+{% else %} 
+<p>Please enter at least three characters</p>
+{% endif %}
+
+<br>
+<form method="get" action="/search">
+<input type="text" name="q" value="{{ searchtext }}">
+<button type="submit">Search again</button>
+</form>
+
+
+{% endblock %}
