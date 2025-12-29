@@ -24,7 +24,7 @@ with open('/home/pinmap/pinmapProject/pinmap/secret_key.txt') as f:
   SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['cassiopeia.uberspace.de', 'treffn.uber.space', 'buddy-logger.com', 'www.buddy-logger.com']
 

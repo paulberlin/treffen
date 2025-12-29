@@ -143,7 +143,7 @@ class Meetup(models.Model):
   owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   location = models.ForeignKey(Location, on_delete=models.PROTECT)
   buddies = models.ManyToManyField(Buddy)
-  date  = models.DateField(default=date.today())
+  date  = models.DateField(default=date.today)
 
   # check date validity during save
   def save(self, *args, **kwargs):

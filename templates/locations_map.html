@@ -18,49 +18,42 @@ crossorigin=""></script>
 {% block content %}
 Hi {{ user.username }}, 
 
-here's a list of your locations: (<a href="{% url 'locations_map' %}">show map instead</a>
+here's a map of your locations: (<a href="{% url 'locations' %}">show list instead</a> 
 or <a href="{% url 'locations_heatmap' %}">show a heatmap</a>)
 <br>You can also <a href="#new" onclick="document.getElementById('new').open = true;">add a new location</a>.
 <p>
-
-{% if locations_without_category %}
-<details>
-<summary><em>No category</em></summary>
-<ul>
-  {% for location in locations_without_category %}
-    <li>{% include "location_snippet.html" with location=location %}</li>
-  {% endfor %}
-</ul>
-</details>
-{% endif %}
-
-
-{% for cat in categories %}
-{% if cat.how_often_location > 0 %}
-<details
-{% if filter %}
-open
-{% endif %}
->
-<summary>{{ cat }} ({{ cat.how_often_location }})</summary>
-<ul>
-  {% for location in cat.location_set.all|dictsort:"name" %}
-    <li>{% include "location_snippet.html" with location=location %}</li>
-  {% endfor %}
-</ul>
-{% if filter %}
-<a href="{% url 'locations' %}">Clear filter</a>
-{% else %}
-<a href="{% url 'meetups_cat2' cat.id %}">See meetups of this category</a>
-{% endif %}
-</details>
-{% endif %}
+{% if locations %}
+<div style="height: 500px;" id="map"></div>
+<script>
+var map = L.map('map').setView([{{ map_lat }}, {{ map_lng }}], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+var lat_lng = [];
+{% for location in locations %}
+  {% if location.lng %}
+    lat_lng.push([{{ location.lat }}, {{ location.lng }}]);
+    var marker{{ location.id }} = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
+    marker{{ location.id }}.bindPopup('<a href="{% url 'location_details' location.id %}">{{ location.name }}</a>');
+  {% endif %}
 {% endfor %}
+if (lat_lng.length > 0) {
+  var bounds = new L.LatLngBounds(lat_lng);
+  map.fitBounds(bounds);
+}
+</script>
+{% else %}
+<ul>
+        <li>None yet :-/</li>
+</ul>
+{% endif %}
+</p>
 
 
 <details {{ open_details }} id="new">
 <summary>Add a location</summary>
-<form action="" method="post">
+<form action="{% url 'locations' %}" method="post">
 {{ form }}
 {% csrf_token %}
 <input type="submit" value="Make it so!">

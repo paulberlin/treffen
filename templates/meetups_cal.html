@@ -1,0 +1,34 @@
+
+{% if meetups %}
+
+<script type="importmap">
+{
+"imports": {
+"lit": "https://esm.sh/lit@3.2.0",
+"lit/": "https://esm.sh/lit@3.2.0/"
+}
+}
+</script>
+<script type="module" src="/static/activity-graph.min.js"></script>
+
+<style>
+activity-graph {
+--activity-graph-text-color: var(--text);
+}
+figcaption {
+padding-top: 1rem;
+}
+</style>
+
+<activity-graph 
+	class=".activity-graph-dark"
+	range-start="{{ first_meetup|date:"Y-m-d" }}"
+	range-end="{{ last_meetup|date:"Y-m-d" }}"
+	activity-data="{% for meetup in meetups %}{{ meetup.date|date:"Y-m-d" }}{% if not forloop.last %},{%endif %}{% endfor %}"
+	activity-levels="0,1,2,3"
+	first-day-of-week="1"
+	lang="de"
+></activity-graph>
+
+
+{% endif %}

@@ -5,7 +5,7 @@
 {% block content %}
 Hi {{ user.username }}, 
 here's a list of your buddies:
-<br><a href="#new" onclick="document.getElementById('new').open = true;">add a new buddy</a>
+<br>You can also <a href="#new" onclick="document.getElementById('new').open = true;">add a new buddy</a>.
 <p>
  
 {% if buddies_without_category %}
@@ -27,7 +27,7 @@ here's a list of your buddies:
 open
 {% endif %}
 >
-<summary>{{ cat }}</summary>
+<summary>{{ cat }} ({{ cat.how_often_buddy }})</summary>
 <ul>
   {% for buddy in cat.buddy_set.all|dictsort:"name" %}
     <li>{% include "buddy_snippet.html" with buddy=buddy %}</li>
@@ -35,6 +35,8 @@ open
 </ul>
 {% if filter %}
 <a href="{% url 'buddies' %}">Clear filter</a>
+{% else %}
+<a href="{% url 'meetups_cat3' cat.id %}">See meetups of this category</a>
 {% endif %}
 </details>
 {% endif %}

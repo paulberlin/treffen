@@ -2,6 +2,16 @@
 
 {% block title %} - Buddy {{ buddy.name }}{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+{% endblock %}
+
 {% block content %}
 Hi {{ user.username }}, 
 here are the details of your buddy <em>{{ buddy.name }}</em>{% if buddy.category %} (category: {{ buddy.category }}){% endif %}:
@@ -15,6 +25,10 @@ days.
 Your last meetup is already {{ last_meetup_days }} days ago, time to meet again?!
 {% endif %}
 </p></aside>
+{% endif %}
+
+{% if buddy.how_often > 2 %}
+{% include "meetups_cal.html" with meetups=buddy.meetups %}
 {% endif %}
 
 {% if buddy.how_often > 0 %}

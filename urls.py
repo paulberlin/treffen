@@ -21,15 +21,18 @@ urlpatterns = [
     path('locations/', views.locations, name='locations'),
     path('locations', views.locations, name='locations'),
     path('locations/<int:id>', views.location_details, name='location_details'),
-    path('locations/<str:map>', views.locations, name='locations_map'),
+    path('locations/map/', views.locations_map, name='locations_map'),
+    path('locations/heatmap/', views.locations_heatmap, name='locations_heatmap'),
     path('locations/category/<int:cat>', views.locations, name='locations_cat'),
     # meetups with cal
-    path('meetups_cal/', views.meetups_cal, name='meetups'),
-    path('meetups_cal', views.meetups_cal, name='meetups'),
+    path('meetups_cal/', views.meetups_cal, name='meetups_cal'),
+    path('meetups_cal', views.meetups_cal, name='meetups_cal'),
     # meetups
     path('meetups/', views.meetups, name='meetups'),
     path('meetups', views.meetups, name='meetups'),
     path('meetups/<int:id>', views.meetup_details, name='meetup_details'),
+    path('meetups/category/0-<int:cat>', views.meetups2, name='meetups_cat2'),
+    path('meetups/category/<int:cat>-0', views.meetups3, name='meetups_cat3'),
     path('meetups/category/<str:cat>', views.meetups, name='meetups_cat'),
     # categories
     path('categories/', views.categories, name='categories'),
