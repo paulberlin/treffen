@@ -20,10 +20,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-uk&og32^ctjnz8um8s7t4+&v)bb6j2mie8&6%&9^k5_7)w=kg='
+with open('/home/pinmap/pinmapProject/pinmap/secret_key.txt') as f:
+  SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['cassiopeia.uberspace.de', 'treffn.uber.space', 'buddy-logger.com', 'www.buddy-logger.com']
 
