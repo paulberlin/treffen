@@ -127,8 +127,14 @@ def buddies(request, cat=0):
   else:
     return redirect('login')
 
-def buddy_details(request, id):
-  log('buddy_details', request)
+def buddy_details_alone(request, id):
+  return buddy_details(request, id, 1)
+
+def buddy_details(request, id, alone=0):
+  if alone:
+    log('buddy_details_alone', request)
+  else:
+    log('buddy_details', request)
   if request.user.is_authenticated:
     context = {}
     open_details = ""
@@ -148,24 +154,32 @@ def buddy_details(request, id):
         return redirect('buddies')
       # validation failed, open form to show error
       open_details = "open"
-    last_meetup = Meetup.objects.filter(owner__exact=request.user).filter(buddies=id).order_by('-date').first()
-    days_since_last_meetup = 0
-    if last_meetup:
-      days_since_last_meetup = (date.today() - last_meetup.date).days
     # prepare a new meetup for the location
     newmeetup = Meetup(owner=request.user)
     #newmeetup.buddies.add(buddy) cannot add a default value before saving :-/
     newmeetup_form = AddMeetup(request.user.id, instance=newmeetup)
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
+    meetups = buddy.meetups.order_by('-date')
+    if alone:
+      #meetups = Meetup.objects.filter(buddies=buddy).annotate(num_buddies=Count('buddies', distinct=True)).filter(num_buddies=1)
+      meetups = Meetup.objects.annotate(total_buddies=Count('buddies', distinct=True)).filter(buddies=buddy, total_buddies=1).order_by('-date')
     first_meetup_date = ""
     last_meetup_date = ""
-    first_meetup = buddy.meetups.order_by('date').first() 
+    days_since_last_meetup = 0
+    frequency = 0
+    how_often = 0
+    first_meetup = meetups.order_by('date').first() 
     if first_meetup:
       first_meetup_date = first_meetup.date + timedelta(days=(0-first_meetup.date.weekday()))
-    last_meetup = buddy.meetups.order_by('-date').first()
+    last_meetup = meetups.order_by('-date').first()
     if last_meetup:
       last_meetup_date = last_meetup.date + timedelta(days=(6-last_meetup.date.weekday()))
-    context = { 'buddy': buddy, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "highlight": "buddies", "last_meetup_days": days_since_last_meetup, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
+      days_since_last_meetup = (date.today() - last_meetup.date).days
+    if meetups:
+      how_often = meetups.count()
+      if how_often > 0:
+        frequency = ((last_meetup.date - first_meetup.date).days + 1) / how_often
+    context = { 'buddy': buddy, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "highlight": "buddies", "last_meetup_days": days_since_last_meetup, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date, "meetups": meetups, "alone": alone, "frequency": frequency, "how_often": how_often }
     return render(request, 'buddy.html', context)
   else:
     return redirect('login')
@@ -255,7 +269,15 @@ def location_details(request, id):
     newmeetup = Meetup(owner=request.user, location=location)
     newmeetup_form = AddMeetup(request.user.id, instance=newmeetup)
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
-    context = { 'location': location, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations", "newmeetup_form": newmeetup_form, "buddies_amount": buddies_amount }
+    first_meetup_date = ""
+    last_meetup_date = ""
+    first_meetup = location.meetups.order_by('date').first() 
+    if first_meetup:
+      first_meetup_date = first_meetup.date + timedelta(days=(0-first_meetup.date.weekday()))
+    last_meetup = location.meetups.order_by('-date').first()
+    if last_meetup:
+      last_meetup_date = last_meetup.date + timedelta(days=(6-last_meetup.date.weekday()))
+    context = { 'location': location, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations", "newmeetup_form": newmeetup_form, "buddies_amount": buddies_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
     #context = { 'location': location, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations", "newmeetup_form": newmeetup_form, "buddies_amount": buddies_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
     return render(request, 'location.html', context)
   else:
@@ -435,6 +457,7 @@ def log(page, request):
     ref = re.sub("categories\/\d+", "category_details", ref)
     ref = re.sub("meetups\/category\/\d+-\d+", "meetups_by_category", ref)
     ref = re.sub("buddies\/category\/\d+", "buddies_by_category", ref)
+    ref = re.sub("buddy_details\/alone", "buddies_details_alone", ref)
     ref = re.sub("\/$", "", ref) # remove last / 
   else:
     if page == 'index':

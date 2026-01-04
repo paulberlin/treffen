@@ -13,6 +13,7 @@ urlpatterns = [
     path('buddies/category', views.buddies, name='buddies'),
     path('buddies/', views.buddies, name='buddies'),
     path('buddies', views.buddies, name='buddies'),
+    path('buddies/<int:id>/alone', views.buddy_details_alone, name='buddy_details_alone'),
     path('buddies/<int:id>', views.buddy_details, name='buddy_details'),
     path('buddies/category/<int:cat>', views.buddies, name='buddies_cat'),
     # locations
