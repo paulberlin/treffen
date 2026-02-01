@@ -1,0 +1,71 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+
+<div>
+<select id="aggregation">
+<option value="week">per week</option>
+<option value="month" selected>per month</option>
+<option value="quarter">per quarter</option>
+<option value="year">per year</option>
+</select>
+<button id="loadChart">Load / update graph</button>
+</div>
+<canvas id="myChart"></canvas>
+
+<script>
+let chart; // keep reference so we can update/destroy
+
+document.getElementById('loadChart').addEventListener('click', async () => {
+const aggregation = document.getElementById('aggregation').value;
+//if (!aggregation) { return };
+const response = await fetch('?format=JSON&aggregation=' + aggregation);
+const result = await response.json();
+
+const labels = Object.keys(result);
+const data = Object.values(result);
+
+const ctx = document.getElementById('myChart').getContext('2d');
+
+// If chart already exists, destroy it before recreating
+if (chart) {
+chart.destroy();
+}
+
+chart = new Chart(ctx, {
+type: 'line',
+data: {
+labels,
+datasets: [{
+label: 'buddy meet frequency',
+data,
+borderWidth: 2,
+fill: false,
+tension: 0.3
+}]
+},
+options: {
+responsive: true,
+scales: {
+x: {
+title: {
+display: true,
+text: 'Aggregated date'
+}
+},
+y: {
+title: {
+display: true,
+text: 'Number of meetups'
+},
+beginAtZero: true,
+ticks: {
+  precision: 0
+}
+}
+}
+}
+});
+});
+</script>
+
+

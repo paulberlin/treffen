@@ -26,7 +26,9 @@ function calculateURL(locSelect, budSelect) {
 
 {% block content %}
 Hi {{ user.username }}, 
-below is a list of your meetups. You can also
+below is a list of your 
+{% if meetups_amount > 1 %}{{ meetups_amount }}{% endif %}
+meetups. You can also
 <a href="#new" onclick="document.getElementById('new').open = true;">add a new meetup</a>
 or filter by the categories:
 <br>
@@ -61,7 +63,10 @@ document.getElementById('id_bud_categories').addEventListener(
   );
 </script>
 
-{% include "meetups_cal.html" with meetups=meetups %}
+{% if meetups_amount > 2 %}
+   <!-- include "meetups_graph.html" -->
+   {% include "meetups_cal.html" with meetups=meetups %}
+{% endif %}
 
 {% include "meetups_snippet.html" with meetups=meetups %}
 

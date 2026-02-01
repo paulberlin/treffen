@@ -28,8 +28,11 @@ Your last meetup is already {{ last_meetup_days }} days ago, time to meet again?
 </p></aside>
 {% endif %}
 
+
+
 {% if how_often > 2 %}
-{% include "meetups_cal.html" with meetups=meetups %}
+   {% include "meetups_graph.html" %}
+   {% include "meetups_cal.html" with meetups=meetups %}
 {% endif %}
 
 {% if how_often > 0 %}

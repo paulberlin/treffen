@@ -1,4 +1,7 @@
 import re
+import collections
+import math
+from collections import defaultdict
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
@@ -6,8 +9,21 @@ from django.shortcuts import get_list_or_404
 from django.conf import settings
 from django.db.models import Count
 from datetime import date, timedelta
+import dateutil.relativedelta as relativedelta
+from dateutil.rrule import rrule, WEEKLY, MONTHLY, YEARLY
 from django.db.models.functions import Lower
+from django.db.models.functions import TruncYear
+from django.db.models.functions import ExtractYear
+from django.db.models.functions import TruncQuarter
+from django.db.models.functions import ExtractQuarter
+from django.db.models.functions import TruncMonth
+from django.db.models.functions import TruncWeek
 from django.contrib.auth import login
+
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.forms.models import model_to_dict
+from django.core import serializers
 
 from .models import Buddy
 from .models import Location
@@ -161,7 +177,6 @@ def buddy_details(request, id, alone=0):
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     meetups = buddy.meetups.order_by('-date')
     if alone:
-      #meetups = Meetup.objects.filter(buddies=buddy).annotate(num_buddies=Count('buddies', distinct=True)).filter(num_buddies=1)
       meetups = Meetup.objects.annotate(total_buddies=Count('buddies', distinct=True)).filter(buddies=buddy, total_buddies=1).order_by('-date')
     first_meetup_date = ""
     last_meetup_date = ""
@@ -180,6 +195,8 @@ def buddy_details(request, id, alone=0):
       if how_often > 0:
         frequency = ((last_meetup.date - first_meetup.date).days + 1) / how_often
     context = { 'buddy': buddy, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "highlight": "buddies", "last_meetup_days": days_since_last_meetup, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "newmeetup_form": newmeetup_form, "locations_amount": locations_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date, "meetups": meetups, "alone": alone, "frequency": frequency, "how_often": how_often }
+    if request.GET.get('format') == 'JSON':
+      return aggregation(meetups, request.GET.get('aggregation'))
     return render(request, 'buddy.html', context)
   else:
     return redirect('login')
@@ -346,7 +363,10 @@ def meetups(request, cat=""):
       last_meetup_date = last_meetup.date + timedelta(days=(6-last_meetup.date.weekday()))
     locations_amount = Location.objects.filter(owner__exact=request.user).count()
     buddies_amount = Buddy.objects.filter(owner__exact=request.user).count()
-    context = { 'meetups': meetups, "form": form, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "buddy_category_form": buddy_category_form, "location_category_form": location_category_form, "cat_not_found": cat_not_found, "highlight": "meetups", "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
+    meetups_amount = meetups.count()
+    context = { 'meetups': meetups, "form": form, "meetups_amount": meetups_amount, "locations_amount": locations_amount, "buddies_amount": buddies_amount, "open_details": open_details, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "buddy_category_form": buddy_category_form, "location_category_form": location_category_form, "cat_not_found": cat_not_found, "highlight": "meetups", "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
+    if request.GET.get('format') == 'JSON':
+      return aggregation(meetups, request.GET.get('aggregation'))
     return render(request, 'meetups.html', context)
   else:
     return redirect('login')
@@ -464,3 +484,50 @@ def log(page, request):
       return
   log = Logger(page=page, referrer=ref, method=request.method)
   log.save()
+
+
+def aggregation(meetups, aggregation):
+  first_meetup = meetups.order_by('date').first() 
+  last_meetup = meetups.order_by('-date').first()
+  # we need two dates to start processing some results
+  if not first_meetup or not last_meetup:
+    return JsonResponse({'error': 'no first/last meetup'}, safe=False)
+  aggregated_meetups = None
+  result = defaultdict(int)
+  timeformat = None
+  rrule_aggregation = None
+  if aggregation == 'year':
+    aggregated_meetups = meetups.annotate(aggregate=TruncYear('date')).values('aggregate').annotate(total=Count('id')).order_by('aggregate')
+    timeformat = '%Y'
+    rrule_aggregation = YEARLY
+  elif aggregation == 'quarter':
+    # for quarterly we need to do some more tweaking
+    aggregated_meetups = meetups.annotate(year=ExtractYear('date'), quarter=ExtractQuarter('date')).values('year', 'quarter').    annotate(total=Count('id')).order_by('year', 'quarter')
+    for row in aggregated_meetups:
+      result[str(row['year'])+'-Q'+str(row['quarter'])] = row['total']
+    for d in rrule(freq=MONTHLY, interval=3, dtstart=first_meetup.date, until=last_meetup.date):
+      result[str(d.strftime('%Y'))+'-Q'+str(math.ceil(int(d.strftime('%m')) / 3) )] += 0
+  elif aggregation == 'month':
+    aggregated_meetups = meetups.annotate(aggregate=TruncMonth('date')).values('aggregate').annotate(total=Count('id')).order_by('aggregate')
+    timeformat = '%Y-%m' # year-month number
+    rrule_aggregation = MONTHLY
+  elif aggregation == 'week':
+    aggregated_meetups = meetups.annotate(aggregate=TruncWeek('date')).values('aggregate').annotate(total=Count('id')).order_by('aggregate')
+    rrule_aggregation = WEEKLY
+    timeformat = '%Y-%V' #year-calendar week number
+  if timeformat:
+    # we check if the first and last entry have the same formatted value; only if not, further processing is ok  
+    if first_meetup.date.strftime(timeformat) == last_meetup.date.strftime(timeformat):
+      return JsonResponse({'error': 'first/last meetup are on same aggregated value'}, safe=False)
+    # we put the values from the db query into a map with the respectively formatted date as key and the amount of entries as values
+    for row in aggregated_meetups:
+      result[row['aggregate'].strftime(timeformat)] = row['total']
+    # we now need to fill the gaps so that when no entry exists, the count is set to 0
+    for d in rrule(rrule_aggregation, dtstart=first_meetup.date, until=last_meetup.date):
+      result[d.strftime(timeformat)] += 0
+  if result:
+    # we also order the result by its keys
+    return JsonResponse(collections.OrderedDict(sorted(result.items())))
+  # when no (valid) aggregation, we return the plain queryset, not in use yet, but who knows
+  json = serializers.serialize('json', meetups)
+  return HttpResponse(json, content_type='application/json')

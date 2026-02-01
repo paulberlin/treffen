@@ -31,10 +31,10 @@ urlpatterns = [
     # meetups
     path('meetups/', views.meetups, name='meetups'),
     path('meetups', views.meetups, name='meetups'),
-    path('meetups/<int:id>', views.meetup_details, name='meetup_details'),
     path('meetups/category/0-<int:cat>', views.meetups2, name='meetups_cat2'),
     path('meetups/category/<int:cat>-0', views.meetups3, name='meetups_cat3'),
     path('meetups/category/<str:cat>', views.meetups, name='meetups_cat'),
+    path('meetups/<int:id>', views.meetup_details, name='meetup_details'),
     # categories
     path('categories/', views.categories, name='categories'),
     path('categories', views.categories, name='categories'),
