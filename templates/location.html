@@ -22,7 +22,8 @@ days.
 {% endif %}
 
 {% if location.how_often > 2 %}
-{% include 'meetups_cal.html' with meetups=location.meetups %}
+  {% include 'meetups_graph.html' %}
+  {% include 'meetups_cal.html' with meetups=location.meetups %}
 {% endif %}
 
 {% include 'meetups_snippet.html' with meetups=location.meetups nomap=1 %}

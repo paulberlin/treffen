@@ -64,7 +64,7 @@ document.getElementById('id_bud_categories').addEventListener(
 </script>
 
 {% if meetups_amount > 2 %}
-   <!-- include "meetups_graph.html" -->
+   {% include "meetups_graph.html" %}
    {% include "meetups_cal.html" with meetups=meetups %}
 {% endif %}
 

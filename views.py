@@ -296,6 +296,8 @@ def location_details(request, id):
       last_meetup_date = last_meetup.date + timedelta(days=(6-last_meetup.date.weekday()))
     context = { 'location': location, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations", "newmeetup_form": newmeetup_form, "buddies_amount": buddies_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
     #context = { 'location': location, "map_lat": MAP_LAT, "map_lng": MAP_LNG, "form": form, "open_details": open_details, "map_lat": map_lat, "map_lng": map_lng, "highlight": "locations", "newmeetup_form": newmeetup_form, "buddies_amount": buddies_amount, "first_meetup": first_meetup_date, "last_meetup": last_meetup_date }
+    if request.GET.get('format') == 'JSON':
+      return aggregation(location.meetups, request.GET.get('aggregation'))
     return render(request, 'location.html', context)
   else:
     return redirect('login')
@@ -461,7 +463,6 @@ def search(request):
   else:
     return redirect('login')
 
-    
 
 def log(page, request):
   ref = request.META.get('HTTP_REFERER')
@@ -487,6 +488,7 @@ def log(page, request):
 
 
 def aggregation(meetups, aggregation):
+  #meetups = meetups.distinct('id', 'date')
   first_meetup = meetups.order_by('date').first() 
   last_meetup = meetups.order_by('-date').first()
   # we need two dates to start processing some results
@@ -497,22 +499,22 @@ def aggregation(meetups, aggregation):
   timeformat = None
   rrule_aggregation = None
   if aggregation == 'year':
-    aggregated_meetups = meetups.annotate(aggregate=TruncYear('date')).values('aggregate').annotate(total=Count('id')).order_by('aggregate')
+    aggregated_meetups = meetups.annotate(aggregate=TruncYear('date')).values('aggregate').annotate(total=Count('id', distinct=True)).order_by('aggregate')
     timeformat = '%Y'
     rrule_aggregation = YEARLY
   elif aggregation == 'quarter':
     # for quarterly we need to do some more tweaking
-    aggregated_meetups = meetups.annotate(year=ExtractYear('date'), quarter=ExtractQuarter('date')).values('year', 'quarter').    annotate(total=Count('id')).order_by('year', 'quarter')
+    aggregated_meetups = meetups.annotate(year=ExtractYear('date'), quarter=ExtractQuarter('date')).values('year', 'quarter').annotate(total=Count('id', distinct=True)).order_by('year', 'quarter')
     for row in aggregated_meetups:
       result[str(row['year'])+'-Q'+str(row['quarter'])] = row['total']
     for d in rrule(freq=MONTHLY, interval=3, dtstart=first_meetup.date, until=last_meetup.date):
       result[str(d.strftime('%Y'))+'-Q'+str(math.ceil(int(d.strftime('%m')) / 3) )] += 0
   elif aggregation == 'month':
-    aggregated_meetups = meetups.annotate(aggregate=TruncMonth('date')).values('aggregate').annotate(total=Count('id')).order_by('aggregate')
+    aggregated_meetups = meetups.annotate(aggregate=TruncMonth('date')).values('aggregate').annotate(total=Count('id', distinct=True)).order_by('aggregate')
     timeformat = '%Y-%m' # year-month number
     rrule_aggregation = MONTHLY
   elif aggregation == 'week':
-    aggregated_meetups = meetups.annotate(aggregate=TruncWeek('date')).values('aggregate').annotate(total=Count('id')).order_by('aggregate')
+    aggregated_meetups = meetups.annotate(aggregate=TruncWeek('date')).values('aggregate').annotate(total=Count('id', distinct=True)).order_by('aggregate')
     rrule_aggregation = WEEKLY
     timeformat = '%Y-%V' #year-calendar week number
   if timeformat:
@@ -530,4 +532,7 @@ def aggregation(meetups, aggregation):
     return JsonResponse(collections.OrderedDict(sorted(result.items())))
   # when no (valid) aggregation, we return the plain queryset, not in use yet, but who knows
   json = serializers.serialize('json', meetups)
+  #return HttpResponse(str(aggregated_meetups), content_type='application/json')
   return HttpResponse(json, content_type='application/json')
+
+
