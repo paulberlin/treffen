@@ -26,7 +26,7 @@
 </form>
 <form method="get" action="/search">
 <input type="text" name="q" value="{{ searchtext }}">
-<button type="submit">Search</button>
+<button type="submit">🔎 Search</button>
 </form>
 {% else %}
 <nav>
@@ -38,14 +38,17 @@
 <main>
 {% if user.is_authenticated %}
 
-{% block content %}Welcome to Buddy-Logger.{% endblock %}
+{% block content %}
+Hi {{ user.username }}, welcome to Buddy Logger!
+<p>You are logged in already, please proceed to the <a href="{% url 'index' %}">home page</a>.</p>
+{% endblock %}
 
 {% else %}
 
 {% block login %}
 Hi, welcome to Buddy Logger!
 
-<p>Please <a href="{% url 'login' %}">login</a> to get started or <a href="{% url 'register' %}">register</a>.</p>
+<p>Please <a href="{% url 'login' %}">login</a> to get started or <a href="{% url 'register' %}">register</a>. You can also visit the <a href="{% url 'help' %}">help section</a>.</p>
 {% endblock %}
 
 {% endif %}
@@ -59,7 +62,10 @@ if (url.match(/#new$/)) {
 </main>
 
 <footer>
-<p><a href="{% url 'about' %}">About</a> | &copy; Paul Führing</p>
+<p>
+<a href="{% url 'about' %}">About</a> | 
+<a href="{% url 'help' %}">Help</a> | 
+&copy; Paul Führing</p>
 </footer>
 </body>
 </html>

@@ -1,0 +1,55 @@
+Hi, welcome to Buddy Logger!
+<p>Just a hobby project to track meeting my buddies. Please see here some explanations of the functionality.</p>
+
+<h1>Home, Login, Registration</h1>
+
+<p>You can reach the <a href="{% url 'index' %}">home page</a> by clicking on the top logo. On the home page you will see some simple statistics once you entered some buddies, locations and meetups.</p>
+
+<p>In order to <a href="{% url 'login' %}">login</a>, please provide the chosen user name and password. You can logout with the respective button in the menu bar.</p>
+
+<p>In order to register, please visit <a href="{% url 'register' %}">this page</a> and create an account with a user name, email and password. When you lost your password, please reach out to me from the supplied email stating your username.</p>
+
+<h1>👥  My Buddies</h1>
+
+<p>Buddies are the persons you meet every now and then. Each meetup has at least one buddy and arbitrary many. The buddies are grouped by categories, see below; categories are optional. When you expand a category, you see the respective buddies assigned. Here, you can also see the amount of meetups with this buddy and the date of the last encounter.</p>
+
+<p>You can also create a new buddy, just give it a name (unique) and optionally a category.</p>
+
+<p>To modify or delete a buddy, first open it by clicking on its name, then find the "Update buddy" section at the bottom. Here you can modify the name or category. Hit the "Make it so" button to save. To delete a buddy, press the respective option and confirm. Note that the buddy will be removed from meetups, but the meetup itself remains.</p>
+
+<h1>📍 My Locations</h1>
+
+<p>Locations are the places where you meet your buddies. Each meetup has exactly one location. The locations are grouped by categories, see below; categories are optional. When you expand a category, you see the respective locations assigned. Here, you can also see the amount of meetups at this location and the date of the last visit.</p>
+
+<p>Instead of a list of locations you can also show a map with all the locations which have a geo reference set or show a heat map which indicates in which area many locations can be found.</p>
+
+<p>You can also create a new location, just give it a name (unique) and optionally a category.
+ 
+<br>Ideally, you'd assign a geo reference to a location. You can click on the map to set a pin. You can also search points of interest using the magnifying glass within the map.</p>
+
+<p>To modify or delete a location, first open it by clicking on its name, then find the "Update location" section at the bottom. Here you can modify the name, category or set a new pin or remove the pin. Hit the "Make it so" button to save. To delete a location, press the respective option and confirm. Note that the location can only be removed when it's not used at any meetup.</p>
+
+<h1>🗓️  My Meetups</h1>
+
+<p>Meetups are at the heart of your buddy logging. Here you connect a set of buddies (at least one) with a location (excactly one) and a date; note that the date cannot be in the future. You can also give the meetup a name (unique per date and location).</p>
+
+<p>Meetups can be filtered by the participating buddy-categories and/or by the location-category.</p>
+
+<p>Meetups are visualized on a kind of calendar which shows how many meetups on a certain calendar day took place. Note that this visualization is only shown when you have more than two meetups (according to your filters).</p>
+
+<p>Meetups can also be visualized as a chart with different time-aggregations (week, month, quarter, year). Note that this visualization is only shown when you have more than two meetups (according to your filters).</p>
+
+<p>To modify or delete a meetup, first open it by clicking on its name, then find the "Update meetup" section at the bottom. Here you can modify the name, location, buddy list or date. Hit the "Make it so" button to save. To delete a meetup, press the respective option and confirm. Note that the meetup will be removed, but the buddies and location remain.</p>
+
+
+<h1>🏷️  My Categories</h1>
+
+<p>There are two types of categories: buddy-categories and location-categories. When you expand a type, you see the respective categories. Here, you can also see the amount of entries assigned to this category.</p>
+
+<p>To modify or delete a category, first open it by clicking on its name, then find the "Update category" section at the bottom. Here you can modify the name. Hit the "Make it so" button to save. To delete a category, press the respective option and confirm. Note that the category can only be removed when it's not used at any location/buddy.</p>
+
+<h1>🔎 Search</h1>
+
+<p>Enter a search term and hit the search button to find your data. The search will try to find your search term in the name at the different places (buddies, locations, meetups, categories).</p>
+
+
