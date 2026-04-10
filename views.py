@@ -36,6 +36,7 @@ from .forms import AddLocation
 from .forms import AddMeetup
 from .forms import EditMeetup
 from .forms import AddCategory
+from .forms import EditCategory
 from .forms import SelectLocationCategory
 from .forms import SelectBuddyCategory
 from .forms import SignupForm
@@ -434,9 +435,9 @@ def category_details(request, id):
     open_details = ""
     category = get_object_or_404(Category, pk=id, owner=request.user)
     categoryinstance = get_object_or_404(Category, pk=id, owner=request.user)
-    form = AddCategory(instance=categoryinstance)
+    form = EditCategory(instance=categoryinstance)
     if request.method == 'POST':
-      form = AddCategory(request.POST, instance=categoryinstance)
+      form = EditCategory(request.POST, instance=categoryinstance)
       if request.POST.get('delete') == "1":
         categoryinstance.delete()
         return redirect('categories')

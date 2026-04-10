@@ -37,8 +37,26 @@ class SelectBuddyCategory(forms.Form):
     self.fields['bud_categories'].queryset = Category.objects.filter(owner=user).filter(category_type=1).order_by('name')
     self.fields['bud_categories'].label = "Select a buddy category to filter"
 
-
 class AddCategory(forms.ModelForm):
+  def clean_name(self):
+    data = self.cleaned_data['name']
+    return cleanup(data)
+
+  class Meta:
+    model = Category
+    fields = ('__all__')
+    labels = {
+      "name": "The category's name",
+    }
+    help_texts = {
+      "category_type": "Note that you cannot modify the type after creation.",
+    }
+    widgets = {
+      "owner": forms.HiddenInput(),
+    }
+
+class EditCategory(forms.ModelForm):
+  # only in edit, we need the delete flag.
   delete = forms.CharField(label='Delete', max_length=1, required=False)
   delete.widget = delete.hidden_widget()
   
@@ -48,7 +66,8 @@ class AddCategory(forms.ModelForm):
 
   class Meta:
     model = Category
-    fields = ('__all__')
+    # in edit mode, we don't allow category type change, ie, we don't show this field
+    fields = ['name']
     labels = {
       "name": "The category's name",
     }
