@@ -129,16 +129,19 @@ class AddMeetup(forms.ModelForm):
     data = self.cleaned_data['name']
     return cleanup(data)
 
+  def clean_comments(self):
+    data = self.cleaned_data['comments']
+    return cleanup(data)
+
   class Meta:
     model = Meetup
-    fields = ('__all__')
+    #fields = ('__all__')
+    exclude = ('buddies_count',)
     labels = {
       "name": "The happening's name",
-      "category": "Category (optional)",
     }
     widgets = {
       "date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
-      #"date": forms.SelectDateWidget(),
       "owner": forms.HiddenInput(),
     }
 

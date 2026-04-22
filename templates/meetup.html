@@ -17,6 +17,9 @@ here are the details of your meetup <em>{{ meetup.name }}</em>:
         with 
 {% for buddy in meetup.buddies.all %}
 <a href="{% url 'buddy_details' buddy.id %}">{{ buddy.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %})
+{% if meetup.comments %}
+<p><em>{{ meetup.comments|linebreaks }}</em></p>
+{% endif %}
         </div>
         </li>
 </ol><!-- /.timeline-events -->
